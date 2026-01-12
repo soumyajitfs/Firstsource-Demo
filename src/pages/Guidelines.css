@@ -1,0 +1,77 @@
+.guidelines {
+  width: 100%;
+  max-width: 1000px;
+}
+
+.breadcrumbs {
+  font-size: 14px;
+  color: #666;
+  margin-bottom: 20px;
+}
+
+.breadcrumbs .separator {
+  margin: 0 8px;
+  color: #999;
+}
+
+.page-header {
+  margin-bottom: 30px;
+}
+
+.page-header h2 {
+  font-size: 24px;
+  font-weight: 600;
+  color: #333;
+  margin: 0;
+}
+
+.guidelines-content {
+  background-color: white;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  padding: 30px;
+}
+
+.guideline-section {
+  margin-bottom: 35px;
+  padding-bottom: 25px;
+  border-bottom: 1px solid #e0e0e0;
+}
+
+.guideline-section:last-child {
+  border-bottom: none;
+  margin-bottom: 0;
+  padding-bottom: 0;
+}
+
+.guideline-section h3 {
+  font-size: 18px;
+  font-weight: 600;
+  color: #6b46c1;
+  margin-bottom: 15px;
+}
+
+.guideline-section ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.guideline-section li {
+  font-size: 14px;
+  color: #333;
+  line-height: 1.8;
+  padding-left: 25px;
+  position: relative;
+  margin-bottom: 10px;
+}
+
+.guideline-section li:before {
+  content: "•";
+  color: #6b46c1;
+  font-weight: bold;
+  position: absolute;
+  left: 0;
+  font-size: 18px;
+}
+

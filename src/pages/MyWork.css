@@ -1,0 +1,163 @@
+.my-work {
+  width: 100%;
+}
+
+.breadcrumbs {
+  font-size: 14px;
+  color: #666;
+  margin-bottom: 20px;
+}
+
+.breadcrumbs .separator {
+  margin: 0 8px;
+  color: #999;
+}
+
+.page-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 30px;
+}
+
+.page-header h2 {
+  font-size: 24px;
+  font-weight: 600;
+  color: #333;
+  margin: 0;
+}
+
+.filter-tabs {
+  display: flex;
+  gap: 10px;
+}
+
+.filter-tabs button {
+  padding: 8px 16px;
+  border: 1px solid #ddd;
+  background-color: white;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 14px;
+  transition: all 0.2s;
+}
+
+.filter-tabs button:hover {
+  background-color: #f5f5f5;
+}
+
+.filter-tabs button.active {
+  background-color: #6b46c1;
+  color: white;
+  border-color: #6b46c1;
+}
+
+.checks-inbox {
+  background-color: white;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  padding: 25px;
+}
+
+.inbox-header {
+  margin-bottom: 20px;
+}
+
+.inbox-header h3 {
+  font-size: 20px;
+  font-weight: 600;
+  color: #333;
+  margin-bottom: 8px;
+}
+
+.inbox-summary {
+  font-size: 14px;
+  color: #666;
+  margin: 0;
+}
+
+.checks-table-container {
+  overflow-x: auto;
+}
+
+.checks-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.checks-table thead {
+  background-color: #f8f9fa;
+}
+
+.checks-table th {
+  padding: 12px;
+  text-align: left;
+  font-size: 13px;
+  font-weight: 600;
+  color: #333;
+  border-bottom: 2px solid #e0e0e0;
+}
+
+.checks-table td {
+  padding: 12px;
+  font-size: 14px;
+  color: #333;
+  border-bottom: 1px solid #f0f0f0;
+}
+
+.checks-table tbody tr:hover {
+  background-color: #f8f9fa;
+}
+
+.status-badge {
+  display: inline-block;
+  padding: 4px 12px;
+  border-radius: 12px;
+  font-size: 12px;
+  font-weight: 500;
+}
+
+.status-pending {
+  background-color: #fff3cd;
+  color: #856404;
+}
+
+.status-extracted {
+  background-color: #d1ecf1;
+  color: #0c5460;
+}
+
+.status-validated {
+  background-color: #d4edda;
+  color: #155724;
+}
+
+.status-resolved {
+  background-color: #d1ecf1;
+  color: #0c5460;
+}
+
+.status-escalated {
+  background-color: #f8d7da;
+  color: #721c24;
+}
+
+.action-btn {
+  padding: 6px 16px;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 13px;
+  font-weight: 500;
+  transition: all 0.2s;
+}
+
+.precheck-btn {
+  background-color: #28a745;
+  color: white;
+}
+
+.precheck-btn:hover {
+  background-color: #218838;
+}
+
