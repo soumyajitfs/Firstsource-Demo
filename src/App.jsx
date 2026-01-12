@@ -5,8 +5,6 @@ import Home from './pages/Home'
 import MyWork from './pages/MyWork'
 import UploadReturnedCheck from './pages/UploadReturnedCheck'
 import CheckAnalysis from './pages/CheckAnalysis'
-import ResolutionDecision from './pages/ResolutionDecision'
-import Guidelines from './pages/Guidelines'
 import ConfirmationAudit from './pages/ConfirmationAudit'
 
 function App() {
@@ -18,9 +16,7 @@ function App() {
           <Route path="/my-work" element={<MyWork />} />
           <Route path="/upload" element={<UploadReturnedCheck />} />
           <Route path="/analysis" element={<CheckAnalysis />} />
-          <Route path="/decision" element={<ResolutionDecision />} />
           <Route path="/confirmation" element={<ConfirmationAudit />} />
-          <Route path="/guidelines" element={<Guidelines />} />
         </Routes>
       </Layout>
     </Router>

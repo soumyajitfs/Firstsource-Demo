@@ -1,44 +1,70 @@
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import './CheckAnalysis.css'
-import { mockExtractedData, mockCustomerData } from '../data/mockData'
+import { mockExtractedData, mockCustomerData, mockValidationResults } from '../data/mockData'
+import { checkDocumentHtml } from '../data/checkDocumentHtml'
 
 const CheckAnalysis = () => {
   const navigate = useNavigate()
-  const [extractedData, setExtractedData] = useState(mockExtractedData)
+  const [extractedData] = useState(mockExtractedData)
   const [customerData] = useState(mockCustomerData)
+  const [vulnerability, setVulnerability] = useState(false)
+  const [decision, setDecision] = useState('Valid Complaint')
+  const [reason, setReason] = useState('')
+  const [reportableToFCA, setReportableToFCA] = useState('Yes')
+  const [showPdfModal, setShowPdfModal] = useState(false)
+  const [pdfPreview, setPdfPreview] = useState(null)
+  const validationResults = mockValidationResults
 
-  const handleFieldChange = (field, value) => {
-    setExtractedData(prev => ({
-      ...prev,
-      [field]: value
-    }))
-  }
-
-  const handleAddressChange = (field, value) => {
-    setExtractedData(prev => ({
-      ...prev,
-      address: {
-        ...prev.address,
-        [field]: value
+  useEffect(() => {
+    if (showPdfModal) {
+      const blob = new Blob([checkDocumentHtml], { type: 'text/html' })
+      const url = URL.createObjectURL(blob)
+      setPdfPreview(url)
+      
+      return () => {
+        if (url) {
+          URL.revokeObjectURL(url)
+        }
       }
-    }))
+    }
+  }, [showPdfModal])
+
+  const getStatusIcon = (status) => {
+    if (status === 'pass') return '✅'
+    if (status === 'warning') return '⚠️'
+    return '❌'
   }
 
-  const getConfidenceColor = (confidence) => {
-    if (confidence >= 0.9) return '#28a745'
-    if (confidence >= 0.75) return '#ffc107'
+  const getStatusColor = (status) => {
+    if (status === 'pass') return '#28a745'
+    if (status === 'warning') return '#ffc107'
     return '#dc3545'
   }
 
-  const getConfidenceLabel = (confidence) => {
-    if (confidence >= 0.9) return 'High'
-    if (confidence >= 0.75) return 'Medium'
-    return 'Low'
+  const handleSendResults = () => {
+    if (!reason.trim()) {
+      alert('Please provide a reason for the final decision')
+      return
+    }
+    navigate('/confirmation')
   }
 
-  const handleVerifyAndContinue = () => {
-    navigate('/decision')
+  const handleReportToFCA = () => {
+    alert('FCA reporting functionality would be triggered here (simulated)')
+  }
+
+  const handleViewDocument = (e) => {
+    e.preventDefault()
+    setShowPdfModal(true)
+  }
+
+  const handleClosePdfModal = () => {
+    setShowPdfModal(false)
+    if (pdfPreview) {
+      URL.revokeObjectURL(pdfPreview)
+      setPdfPreview(null)
+    }
   }
 
   return (
@@ -46,190 +72,80 @@ const CheckAnalysis = () => {
       <div className="breadcrumbs">
         <span>My Work</span>
         <span className="separator">/</span>
-        <span>Check Analysis</span>
+        <span>Case Analysis</span>
       </div>
 
-      <div className="page-header">
-        <h2>Extract Info from Returned Check</h2>
-      </div>
-
-      <div className="extraction-header">
-        <div className="section-icon">📧</div>
-        <h3>Extracting check details from document</h3>
-      </div>
-
-      <div className="analysis-grid">
-        <div className="analysis-card">
-          <div className="card-header">
-            <span className="card-icon">📄</span>
-            <h4>Check Details from Document</h4>
+      {/* Current Complaint Section */}
+      <div className="current-complaint-card">
+        <div className="card-header-orange">
+          <span className="card-icon">📧</span>
+          <h3>Current Returned Check: {extractedData.checkNumber}</h3>
+        </div>
+        <div className="complaint-content">
+          <div className="complaint-links">
+            <a href="#background" className="complaint-link">Background</a>
+            <a href="#description" className="complaint-link">Check Description</a>
+            <a href="#financial" className="complaint-link">Financial Impact</a>
+            <a href="#history" className="complaint-link">Past Return History</a>
           </div>
-          <div className="form-fields">
-            <div className="form-field">
-              <label>
-                Check Number
-                <span 
-                  className="confidence-badge"
-                  style={{ backgroundColor: getConfidenceColor(extractedData.confidence.checkNumber) }}
-                >
-                  {getConfidenceLabel(extractedData.confidence.checkNumber)}
-                </span>
-              </label>
-              <input
-                type="text"
-                value={extractedData.checkNumber}
-                onChange={(e) => handleFieldChange('checkNumber', e.target.value)}
-              />
+          <div className="complaint-details">
+            <div className="complaint-text">
+              <strong>Background:</strong> Returned check received for amount ${extractedData.amount.toFixed(2)} dated {extractedData.checkDate}
             </div>
-
-            <div className="form-field">
-              <label>
-                Account Number
-              </label>
-              <input
-                type="text"
-                value={extractedData.accountNumber}
-                onChange={(e) => handleFieldChange('accountNumber', e.target.value)}
-              />
+            <div className="complaint-text">
+              <strong>Check Description:</strong> {extractedData.returnReason}
             </div>
-
-            <div className="form-field">
-              <label>
-                Account Holder Name
-                <span 
-                  className="confidence-badge"
-                  style={{ backgroundColor: getConfidenceColor(extractedData.confidence.accountHolder) }}
-                >
-                  {getConfidenceLabel(extractedData.confidence.accountHolder)}
-                </span>
-              </label>
-              <input
-                type="text"
-                value={extractedData.accountHolder}
-                onChange={(e) => handleFieldChange('accountHolder', e.target.value)}
-              />
+            <div className="complaint-text">
+              <strong>Financial Impact:</strong> A loss of ${extractedData.amount.toFixed(2)} to the account
             </div>
-
-            <div className="form-field">
-              <label>
-                Check Amount
-                <span 
-                  className="confidence-badge"
-                  style={{ backgroundColor: getConfidenceColor(extractedData.confidence.amount) }}
-                >
-                  {getConfidenceLabel(extractedData.confidence.amount)}
-                </span>
-              </label>
-              <input
-                type="text"
-                value={`$${extractedData.amount.toFixed(2)}`}
-                onChange={(e) => {
-                  const value = parseFloat(e.target.value.replace('$', '')) || 0
-                  handleFieldChange('amount', value)
-                }}
-              />
+            <div className="past-complaints">
+              <div className="past-complaint-item">▲12-Jun-2023: Previous returned check - Insufficient Funds</div>
+              <div className="past-complaint-item">▲12-Aug-2024: Account payment issue - Stop Payment</div>
             </div>
-
-            <div className="form-field">
-              <label>Check Date</label>
-              <input
-                type="date"
-                value={extractedData.checkDate}
-                onChange={(e) => handleFieldChange('checkDate', e.target.value)}
-              />
-            </div>
-
-            <div className="form-field">
-              <label>Return Reason</label>
-              <input
-                type="text"
-                value={extractedData.returnReason}
-                onChange={(e) => handleFieldChange('returnReason', e.target.value)}
-              />
-            </div>
-
-            <div className="form-field">
-              <label>Bank Name</label>
-              <input
-                type="text"
-                value={extractedData.bankName}
-                onChange={(e) => handleFieldChange('bankName', e.target.value)}
-              />
-            </div>
-
-            <div className="form-field">
-              <label>Bank Routing Number</label>
-              <input
-                type="text"
-                value={extractedData.bankRouting}
-                onChange={(e) => handleFieldChange('bankRouting', e.target.value)}
-              />
-            </div>
+            <a href="#letter" className="view-letter-link" onClick={handleViewDocument}>📎 View Check Document</a>
           </div>
         </div>
+      </div>
 
-        <div className="analysis-card">
-          <div className="card-header">
-            <span className="card-icon">📍</span>
-            <h4>Address Details from Document</h4>
-          </div>
-          <div className="form-fields">
-            <div className="form-field">
-              <label>
-                Street Address
-                <span 
-                  className="confidence-badge"
-                  style={{ backgroundColor: getConfidenceColor(extractedData.confidence.address) }}
-                >
-                  {getConfidenceLabel(extractedData.confidence.address)}
-                </span>
-              </label>
-              <input
-                type="text"
-                value={extractedData.address.street}
-                onChange={(e) => handleAddressChange('street', e.target.value)}
-              />
-            </div>
-
-            <div className="form-field">
-              <label>City</label>
-              <input
-                type="text"
-                value={extractedData.address.city}
-                onChange={(e) => handleAddressChange('city', e.target.value)}
-              />
-            </div>
-
-            <div className="form-field">
-              <label>State</label>
-              <input
-                type="text"
-                value={extractedData.address.state}
-                onChange={(e) => handleAddressChange('state', e.target.value)}
-              />
-            </div>
-
-            <div className="form-field">
-              <label>ZIP Code</label>
-              <input
-                type="text"
-                value={extractedData.address.zip}
-                onChange={(e) => handleAddressChange('zip', e.target.value)}
-              />
-            </div>
-          </div>
-        </div>
-
-        <div className="analysis-card">
-          <div className="card-header">
-            <span className="card-icon">🖥️</span>
-            <h4>Customer Details from System</h4>
+      {/* Customer Details Comparison */}
+      <div className="comparison-row">
+        <div className="comparison-card">
+          <div className="card-header-orange">
+            <span className="card-icon">📧</span>
+            <h4>Customer Details from Check Letter</h4>
           </div>
           <div className="info-display">
             <div className="info-row">
-              <span className="info-label">Account Exists?</span>
-              <span className="info-value success">Yes</span>
+              <span className="info-label">Customer Name</span>
+              <span className="info-value">{extractedData.accountHolder}</span>
             </div>
+            <div className="info-row">
+              <span className="info-label">Email Address</span>
+              <span className="info-value">N/A</span>
+            </div>
+            <div className="info-row">
+              <span className="info-label">Date of Birth</span>
+              <span className="info-value">N/A</span>
+            </div>
+            <div className="info-row">
+              <span className="info-label">Telephone Number</span>
+              <span className="info-value">N/A</span>
+            </div>
+            <div className="info-row">
+              <span className="info-label">Address</span>
+              <span className="info-value">
+                {`${extractedData.address.street}, ${extractedData.address.city}, ${extractedData.address.state} ${extractedData.address.zip}`}
+              </span>
+            </div>
+          </div>
+        </div>
+
+        <div className="comparison-card">
+          <div className="card-header-green">
+            <span className="card-icon">🖥️</span>
+            <h4>Customer Details from Aries</h4>
+          </div>
+          <div className="info-display">
             <div className="info-row">
               <span className="info-label">Account Number</span>
               <span className="info-value">{customerData.accountNumber}</span>
@@ -256,22 +172,229 @@ const CheckAnalysis = () => {
                 {`${customerData.address.street}, ${customerData.address.city}, ${customerData.address.state} ${customerData.address.zip}`}
               </span>
             </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Check Details Comparison */}
+      <div className="comparison-row">
+        <div className="comparison-card">
+          <div className="card-header-orange">
+            <span className="card-icon">📧</span>
+            <h4>Check Details from Check Letter</h4>
+          </div>
+          <div className="info-display">
             <div className="info-row">
-              <span className="info-label">Account Status</span>
-              <span className="info-value success">{customerData.accountStatus}</span>
+              <span className="info-label">Check Number</span>
+              <span className="info-value">{extractedData.checkNumber}</span>
+            </div>
+            <div className="info-row">
+              <span className="info-label">Check Amount</span>
+              <span className="info-value">${extractedData.amount.toFixed(2)}</span>
+            </div>
+            <div className="info-row">
+              <span className="info-label">Check Date</span>
+              <span className="info-value">{extractedData.checkDate}</span>
+            </div>
+            <div className="info-row">
+              <span className="info-label">Return Reason</span>
+              <span className="info-value">{extractedData.returnReason}</span>
+            </div>
+            <div className="info-row">
+              <span className="info-label">Bank Name</span>
+              <span className="info-value">{extractedData.bankName}</span>
+            </div>
+            <div className="info-row">
+              <span className="info-label">Bank Routing</span>
+              <span className="info-value">{extractedData.bankRouting}</span>
+            </div>
+          </div>
+        </div>
+
+        <div className="comparison-card">
+          <div className="card-header-green">
+            <span className="card-icon">🖥️</span>
+            <h4>Check Details from Aries</h4>
+          </div>
+          <div className="info-display">
+            <div className="info-row">
+              <span className="info-label">Check Number</span>
+              <span className="info-value">{extractedData.checkNumber}</span>
+            </div>
+            <div className="info-row">
+              <span className="info-label">Check Amount</span>
+              <span className="info-value">${extractedData.amount.toFixed(2)}</span>
+            </div>
+            <div className="info-row">
+              <span className="info-label">Check Date</span>
+              <span className="info-value">{extractedData.checkDate}</span>
+            </div>
+            <div className="info-row">
+              <span className="info-label">Return Reason</span>
+              <span className="info-value">{extractedData.returnReason}</span>
+            </div>
+            <div className="info-row">
+              <span className="info-label">Account Balance</span>
+              <span className="info-value">${customerData.accountBalance.toFixed(2)}</span>
+            </div>
+            <div className="info-row">
+              <span className="info-label">Last Payment Date</span>
+              <span className="info-value">{customerData.lastPaymentDate}</span>
             </div>
           </div>
         </div>
       </div>
 
-      <div className="action-section">
-        <button className="verify-btn" onClick={handleVerifyAndContinue}>
-          Verify & Continue to Validation
-        </button>
+      {/* Mandatory Checks & Final Decision */}
+      <div className="comparison-row">
+        <div className="comparison-card">
+          <div className="card-header-green">
+            <span className="card-icon">✅</span>
+            <h4>Mandatory checks & Check Analysis</h4>
+          </div>
+          <div className="validation-list">
+            {Object.entries(validationResults).map(([key, result]) => (
+              <div key={key} className="validation-item">
+                <div className="validation-status">
+                  <span 
+                    className="status-icon"
+                    style={{ color: getStatusColor(result.status) }}
+                  >
+                    {getStatusIcon(result.status)}
+                  </span>
+                  <span className="validation-label">
+                    {key.replace(/([A-Z])/g, ' $1').replace(/^./, str => str.toUpperCase())}
+                  </span>
+                </div>
+                <div className="validation-result">
+                  <span 
+                    className="result-badge"
+                    style={{ 
+                      backgroundColor: getStatusColor(result.status) === '#28a745' ? '#d4edda' : 
+                                     getStatusColor(result.status) === '#ffc107' ? '#fff3cd' : '#f8d7da',
+                      color: getStatusColor(result.status) === '#28a745' ? '#155724' : 
+                             getStatusColor(result.status) === '#ffc107' ? '#856404' : '#721c24'
+                    }}
+                  >
+                    {result.status === 'pass' ? 'Yes' : result.status === 'warning' ? 'Warning' : 'No'}
+                  </span>
+                </div>
+              </div>
+            ))}
+            <div className="complaint-classification">
+              <div className="classification-title">Check Classification:</div>
+              <div className="classification-options">
+                <div className="classification-item selected">
+                  <span className="classification-icon">✓</span>
+                  <span>Financial Loss</span>
+                </div>
+                <div className="classification-item">
+                  <span className="classification-icon">✗</span>
+                  <span>Material Distress</span>
+                </div>
+                <div className="classification-item">
+                  <span className="classification-icon">✗</span>
+                  <span>Material Inconvenience</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div className="comparison-card">
+          <div className="card-header-green">
+            <span className="card-icon">✅</span>
+            <h4>Final Decision on Returned Check</h4>
+          </div>
+          <div className="decision-form">
+            <div className="form-field">
+              <label>Vulnerability</label>
+              <div className="toggle-container">
+                <span className="toggle-label">Yes</span>
+                <label className="toggle-switch">
+                  <input
+                    type="checkbox"
+                    checked={vulnerability}
+                    onChange={(e) => setVulnerability(e.target.checked)}
+                  />
+                  <span className="toggle-slider"></span>
+                </label>
+              </div>
+            </div>
+
+            <div className="form-field">
+              <label>Decision</label>
+              <select
+                value={decision}
+                onChange={(e) => setDecision(e.target.value)}
+                className="decision-select"
+              >
+                <option value="Valid Complaint">Valid Complaint</option>
+                <option value="Invalid Complaint">Invalid Complaint</option>
+                <option value="No Clear Evidence">No Clear Evidence</option>
+                <option value="Requires Investigation">Requires Investigation</option>
+              </select>
+            </div>
+
+            <div className="form-field">
+              <label>Reason for Final Decision</label>
+              <textarea
+                value={reason}
+                onChange={(e) => setReason(e.target.value)}
+                placeholder="Enter the reason for your decision..."
+                className="reason-textarea"
+                rows="6"
+              />
+            </div>
+
+            <div className="form-field">
+              <label>Reportable to FCA</label>
+              <select
+                value={reportableToFCA}
+                onChange={(e) => setReportableToFCA(e.target.value)}
+                className="decision-select"
+              >
+                <option value="Yes">Yes</option>
+                <option value="No">No</option>
+              </select>
+            </div>
+
+            <div className="action-buttons">
+              <button className="send-results-btn" onClick={handleSendResults}>
+                Send Final Resolution Results
+              </button>
+              {reportableToFCA === 'Yes' && (
+                <button className="report-fca-btn" onClick={handleReportToFCA}>
+                  Report to FCA
+                </button>
+              )}
+            </div>
+          </div>
+        </div>
       </div>
+
+      {/* PDF Modal */}
+      {showPdfModal && (
+        <div className="pdf-modal-overlay" onClick={handleClosePdfModal}>
+          <div className="pdf-modal" onClick={(e) => e.stopPropagation()}>
+            <div className="pdf-modal-header">
+              <h3>Check Document</h3>
+              <button className="pdf-modal-close" onClick={handleClosePdfModal}>×</button>
+            </div>
+            <div className="pdf-modal-content">
+              {pdfPreview && (
+                <iframe
+                  src={pdfPreview}
+                  title="Check Document"
+                  className="pdf-modal-iframe"
+                />
+              )}
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   )
 }
 
 export default CheckAnalysis
-

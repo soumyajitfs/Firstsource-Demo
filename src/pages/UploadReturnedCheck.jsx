@@ -1,9 +1,11 @@
 import React, { useState, useEffect } from 'react'
+import { useNavigate } from 'react-router-dom'
 import './UploadReturnedCheck.css'
 import { checkDocumentHtml } from '../data/checkDocumentHtml'
 import { mockExtractedData, mockCustomerData } from '../data/mockData'
 
 const UploadReturnedCheck = () => {
+  const navigate = useNavigate()
   const [pdfPreview, setPdfPreview] = useState(null)
   const [step, setStep] = useState('initial') // initial, extracted, verified, caseForm, caseCreated
   const [extractedData, setExtractedData] = useState(mockExtractedData)
@@ -87,9 +89,10 @@ const UploadReturnedCheck = () => {
     setStep('caseForm')
   }
 
-  const handleGoToAnalysis = () => {
-    // Navigate to analysis page or reset
-    window.location.href = '/analysis'
+  const handleGoToAnalysis = (e) => {
+    e.preventDefault()
+    e.stopPropagation()
+    navigate('/analysis')
   }
 
   return (
@@ -424,7 +427,11 @@ const UploadReturnedCheck = () => {
                     <button className="action-btn close-action" onClick={handleCloseModal}>
                       Close
                     </button>
-                    <button className="action-btn analysis-action" onClick={handleGoToAnalysis}>
+                    <button 
+                      className="action-btn analysis-action" 
+                      onClick={handleGoToAnalysis}
+                      type="button"
+                    >
                       Go to Case Analysis
                     </button>
                   </div>

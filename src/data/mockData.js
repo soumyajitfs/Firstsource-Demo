@@ -2,52 +2,57 @@ export const mockReturnedChecks = [
   {
     id: 'CHK001',
     checkNumber: '9901585',
+    emailFrom: 'billing@bswhealth.org',
     accountHolder: 'Baylor Scott and White Health',
     amount: 24.98,
     returnReason: 'Overpayment by Secondary Payor',
     receivedDate: '2 hours ago',
     status: 'pending',
-    pdfUrl: null
+    pdfUrl: '/check-document.pdf' // PDF present
   },
   {
     id: 'CHK002',
     checkNumber: '1234567891',
+    emailFrom: 'sarah.johnson@email.com',
     accountHolder: 'Sarah Johnson',
     amount: 850.50,
     returnReason: 'Account Closed',
     receivedDate: '1 day ago',
     status: 'extracted',
-    pdfUrl: null
+    pdfUrl: null // No PDF
   },
   {
     id: 'CHK003',
     checkNumber: '1234567892',
+    emailFrom: 'michael.brown@email.com',
     accountHolder: 'Michael Brown',
     amount: 2100.00,
     returnReason: 'Stop Payment',
     receivedDate: '3 days ago',
     status: 'validated',
-    pdfUrl: null
+    pdfUrl: '/check-document.pdf' // PDF present
   },
   {
     id: 'CHK004',
     checkNumber: '1234567893',
+    emailFrom: 'emily.davis@email.com',
     accountHolder: 'Emily Davis',
     amount: 450.75,
     returnReason: 'Insufficient Funds',
     receivedDate: '5 days ago',
     status: 'resolved',
-    pdfUrl: null
+    pdfUrl: null // No PDF
   },
   {
     id: 'CHK005',
     checkNumber: '1234567894',
+    emailFrom: 'robert.wilson@email.com',
     accountHolder: 'Robert Wilson',
     amount: 3200.00,
     returnReason: 'Unauthorized Signature',
     receivedDate: '1 week ago',
     status: 'escalated',
-    pdfUrl: null
+    pdfUrl: '/check-document.pdf' // PDF present
   }
 ]
 

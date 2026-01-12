@@ -78,10 +78,10 @@ const MyWork = () => {
           <table className="checks-table">
             <thead>
               <tr>
-                <th>Check Number</th>
+                <th>Email From</th>
                 <th>Account Holder</th>
-                <th>Amount</th>
                 <th>Return Reason</th>
+                <th>Attachment</th>
                 <th>Received Date</th>
                 <th>Status</th>
                 <th>Action</th>
@@ -90,10 +90,12 @@ const MyWork = () => {
             <tbody>
               {filteredChecks.map((check) => (
                 <tr key={check.id}>
-                  <td>{check.checkNumber}</td>
+                  <td>{check.emailFrom}</td>
                   <td>{check.accountHolder}</td>
-                  <td>${check.amount.toFixed(2)}</td>
                   <td>{check.returnReason}</td>
+                  <td>
+                    {check.pdfUrl ? 'Yes' : 'No'}
+                  </td>
                   <td>{check.receivedDate}</td>
                   <td>{getStatusBadge(check.status)}</td>
                   <td>

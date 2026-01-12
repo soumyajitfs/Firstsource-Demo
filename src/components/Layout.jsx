@@ -5,14 +5,22 @@ import './Layout.css'
 const Layout = ({ children }) => {
   const location = useLocation()
   const [searchQuery, setSearchQuery] = useState('')
+  const [sidebarCollapsed, setSidebarCollapsed] = useState(false)
 
   const isActive = (path) => location.pathname === path
+
+  const toggleSidebar = () => {
+    setSidebarCollapsed(!sidebarCollapsed)
+  }
 
   return (
     <div className="layout">
       <header className="header">
         <div className="header-left">
-          <h1 className="app-title">Humana - Returned Check Resolution</h1>
+          <div className="logo-container">
+            <span className="humana-logo">Humana</span>
+            <span className="app-subtitle">Returned Check Resolution</span>
+          </div>
         </div>
         <div className="header-center">
           <input
@@ -36,14 +44,20 @@ const Layout = ({ children }) => {
       </header>
 
       <div className="main-container">
-        <aside className="sidebar">
+        <button 
+          className={`sidebar-toggle ${sidebarCollapsed ? 'collapsed' : ''}`}
+          onClick={toggleSidebar}
+          aria-label="Toggle sidebar"
+        >
+          {sidebarCollapsed ? '▶' : '◀'}
+        </button>
+        <aside className={`sidebar ${sidebarCollapsed ? 'collapsed' : ''}`}>
           <div className="sidebar-section">
             <div className="section-title">GENERAL</div>
             <Link
-              to="/my-work"
-              className={`sidebar-item ${isActive('/my-work') ? 'active' : ''}`}
+              to="/"
+              className={`sidebar-item ${isActive('/') ? 'active' : ''}`}
             >
-              <span className="sidebar-icon">🖥️</span>
               <span>My Work</span>
             </Link>
           </div>
@@ -54,33 +68,13 @@ const Layout = ({ children }) => {
               to="/upload"
               className={`sidebar-item ${isActive('/upload') ? 'active' : ''}`}
             >
-              <span className="sidebar-icon">📤</span>
               <span>Upload Returned Check</span>
             </Link>
             <Link
               to="/analysis"
               className={`sidebar-item ${isActive('/analysis') ? 'active' : ''}`}
             >
-              <span className="sidebar-icon">🔍</span>
               <span>Check Analysis</span>
-            </Link>
-            <Link
-              to="/decision"
-              className={`sidebar-item ${isActive('/decision') ? 'active' : ''}`}
-            >
-              <span className="sidebar-icon">✅</span>
-              <span>Resolution Decision</span>
-            </Link>
-          </div>
-
-          <div className="sidebar-section">
-            <div className="section-title">OTHERS</div>
-            <Link
-              to="/guidelines"
-              className={`sidebar-item ${isActive('/guidelines') ? 'active' : ''}`}
-            >
-              <span className="sidebar-icon">📋</span>
-              <span>Guidelines</span>
             </Link>
           </div>
         </aside>
