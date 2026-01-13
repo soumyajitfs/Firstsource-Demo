@@ -57,25 +57,29 @@ export const mockReturnedChecks = [
 ]
 
 export const mockExtractedData = {
-  checkNumber: '9901585',
-  accountNumber: 'ACC-779545685',
-  accountHolder: 'Baylor Scott and White Health',
-  amount: 24.98,
-  checkDate: '2025-12-03',
-  returnReason: 'Overpayment by Secondary Payor',
-  bankName: 'BANK OF AMERICA, N.A.',
-  bankRouting: '021000021',
-  address: {
-    street: '2401 S. 31st St. MS-AR-M200',
-    city: 'Temple',
-    state: 'TX',
-    zip: '76508'
-  },
+  claimNumber: '26337', // 5-digit claim number (truncated from Check/EFT Number in PDF)
+  checkNumber: '9901585', // From Check No. in PDF remittance section
+  nameAsPerLetter: 'BaylorScott & White HEALTH', // From document header
+  givenAddress: 'PO BOX 844658, DALLAS, TX 752844658', // Payment Made To address
+  dateOfService: '04/29/2025', // Date(s) of Service from PDF
+  typeOfService: 'OUTPT HSP (Outpatient Hospital)', // Type of Service from PDF
+  providerName: 'SCOTT & WHITE HOSPITAL - ROUND ROCK', // Payment Made To provider name from PDF
+  patientAccountNumber: 'ACC-779545685', // Patient Account Number from PDF (using vendor number format)
+  background: 'Outpatient Hospital Service - Medicare claim processed through NOVITAS SOLUTIONS (Medicare A). Service date: 04/29/2025. Billed charge: $325.00, Medicare approved: $122.89, Our payment: $24.98. Payment method: Automated Clearing House.',
+  complaintDescription: 'Explanation of Benefits for OUTPT HSP (Outpatient Hospital) service. Claim processed with Medicare adjustments. Billed Amount: $325.00, Allowed Amount: $325.00, Co-Insurance: $24.21, Other Adjustments: $203.59 and $1.24, Benefit Amount: $94.85.',
+  financialImpactOnBuyer: '$24.21', // Patient Responsibility/Co-Insurance from PDF (General Claim Adjustments shows Patient Responsibility: 24.21)
   confidence: {
-    checkNumber: 0.95,
-    accountHolder: 0.92,
-    amount: 0.98,
-    address: 0.88
+    claimNumber: 0.98,
+    checkNumber: 0.98,
+    nameAsPerLetter: 0.95,
+    givenAddress: 0.92,
+    dateOfService: 0.98,
+    typeOfService: 0.95,
+    providerName: 0.95,
+    patientAccountNumber: 0.90,
+    background: 0.88,
+    complaintDescription: 0.90,
+    financialImpactOnBuyer: 0.98
   }
 }
 
@@ -90,19 +94,20 @@ export const mockValidationResults = {
 }
 
 export const mockCustomerData = {
-  accountNumber: 'ACC-1121212',
-  customerName: 'John Smith',
-  emailAddress: 'john.smith@email.com',
-  dateOfBirth: '8/14/1996',
-  telephoneNumber: '+44 20 7123 4567',
+  accountNumber: 'ACC-779545685', // From Patient Account Number/Vendor No. in PDF
+  customerName: 'BaylorScott & White HEALTH', // From name as per letter in extracted data
+  emailAddress: 'billing@bswhealth.org', // From email from in mockReturnedChecks
+  dateOfBirth: 'N/A', // Not available in PDF
+  telephoneNumber: '855-252-8782', // From NOVITAS SOLUTIONS phone in PDF
   address: {
-    street: 'Flat 2E,10 High Street',
-    city: 'Oxford',
-    state: 'OX',
-    zip: 'OX1 1DE'
+    street: 'PO BOX 844658',
+    addressLine2: '',
+    city: 'DALLAS',
+    state: 'TX',
+    zip: '752844658'
   },
   accountStatus: 'Active',
-  lastPaymentDate: '2025-01-10',
-  accountBalance: 1250.00
+  lastPaymentDate: '10-06-2025', // From Payment Date in PDF
+  accountBalance: 24.98 // From Our Payment amount in PDF
 }
 

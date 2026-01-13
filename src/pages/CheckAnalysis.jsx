@@ -1,11 +1,12 @@
-import React, { useState, useEffect } from 'react'
+import React, { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import './CheckAnalysis.css'
 import { mockExtractedData, mockCustomerData, mockValidationResults } from '../data/mockData'
-import { checkDocumentHtml } from '../data/checkDocumentHtml'
 
 const CheckAnalysis = () => {
   const navigate = useNavigate()
+  // Path to the actual PDF file in the public folder
+  const pdfUrl = '/returned-check.pdf'
   const [extractedData] = useState(mockExtractedData)
   const [customerData] = useState(mockCustomerData)
   const [vulnerability, setVulnerability] = useState(false)
@@ -13,22 +14,7 @@ const CheckAnalysis = () => {
   const [reason, setReason] = useState('')
   const [reportableToFCA, setReportableToFCA] = useState('Yes')
   const [showPdfModal, setShowPdfModal] = useState(false)
-  const [pdfPreview, setPdfPreview] = useState(null)
   const validationResults = mockValidationResults
-
-  useEffect(() => {
-    if (showPdfModal) {
-      const blob = new Blob([checkDocumentHtml], { type: 'text/html' })
-      const url = URL.createObjectURL(blob)
-      setPdfPreview(url)
-      
-      return () => {
-        if (url) {
-          URL.revokeObjectURL(url)
-        }
-      }
-    }
-  }, [showPdfModal])
 
   const getStatusIcon = (status) => {
     if (status === 'pass') return '✅'
@@ -61,10 +47,6 @@ const CheckAnalysis = () => {
 
   const handleClosePdfModal = () => {
     setShowPdfModal(false)
-    if (pdfPreview) {
-      URL.revokeObjectURL(pdfPreview)
-      setPdfPreview(null)
-    }
   }
 
   return (
@@ -382,13 +364,12 @@ const CheckAnalysis = () => {
               <button className="pdf-modal-close" onClick={handleClosePdfModal}>×</button>
             </div>
             <div className="pdf-modal-content">
-              {pdfPreview && (
-                <iframe
-                  src={pdfPreview}
-                  title="Check Document"
-                  className="pdf-modal-iframe"
-                />
-              )}
+              <iframe
+                src={pdfUrl}
+                title="Check Document"
+                className="pdf-modal-iframe"
+                type="application/pdf"
+              />
             </div>
           </div>
         </div>
