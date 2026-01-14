@@ -1,27 +1,43 @@
 import React, { useState, useRef, useEffect } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { useNavigate, useSearchParams } from 'react-router-dom'
 import './UploadReturnedCheck.css'
-import { mockExtractedData, mockCustomerData } from '../data/mockData'
+import { mockExtractedData, mockExtractedDataCHK002, mockCustomerData, mockReturnedChecks } from '../data/mockData'
 
 const UploadReturnedCheck = () => {
   const navigate = useNavigate()
-  // Path to the actual PDF file in the public folder
-  const pdfUrl = '/returned-check.pdf'
+  const [searchParams] = useSearchParams()
+  const checkId = searchParams.get('checkId')
+  
+  // Find the check from mock data to get the correct PDF URL
+  const selectedCheck = mockReturnedChecks.find(check => check.id === checkId) || mockReturnedChecks[0]
+  const basePdfUrl = selectedCheck.pdfUrl || '/returned-check.pdf'
+  // Set default zoom to 100% using PDF viewer parameter
+  const pdfUrl = `${basePdfUrl}#zoom=100`
   const [step, setStep] = useState('initial') // initial, extracted, addressComparison, verified
-  const [extractedData, setExtractedData] = useState(mockExtractedData)
+  // Use different extracted data based on which check is selected
+  const initialExtractedData = selectedCheck.id === 'CHK002' ? mockExtractedDataCHK002 : mockExtractedData
+  const [extractedData, setExtractedData] = useState(initialExtractedData)
   const [customerData] = useState(mockCustomerData)
   const [isExtracting, setIsExtracting] = useState(false)
   const [isVerifying, setIsVerifying] = useState(false)
   const [isCreatingCase, setIsCreatingCase] = useState(false)
   const [returnCheckType, setReturnCheckType] = useState('') // 'Postal' or 'Non-Postal'
+  const [cantDoReason, setCantDoReason] = useState('') // Reason for CANT DO
   const [caseFormData, setCaseFormData] = useState({
     source: 'Customer',
     dateOfReceipt: new Date().toLocaleDateString('en-US', { month: 'numeric', day: 'numeric', year: 'numeric' }),
     method: 'eMail',
-    accountNo: mockExtractedData.patientAccountNumber || '',
+    accountNo: initialExtractedData.patientAccountNumber || '',
     vulnerable: false,
     initialClassification: 'FOS Eligible'
   })
+
+  // Update extracted data when checkId changes
+  useEffect(() => {
+    const currentCheck = mockReturnedChecks.find(check => check.id === checkId) || mockReturnedChecks[0]
+    const newExtractedData = currentCheck.id === 'CHK002' ? mockExtractedDataCHK002 : mockExtractedData
+    setExtractedData(newExtractedData)
+  }, [checkId])
 
   // Update account number when extracted data changes
   useEffect(() => {
@@ -63,66 +79,175 @@ const UploadReturnedCheck = () => {
 
   // Parse address from givenAddress string
   const parseAddressFromDocument = (addressString) => {
-    // Format: "PO BOX 844658, DALLAS, TX 752844658"
+    // Format: "2401 N Stemmons Fwy, Suite 200, DALLAS, TX 75207"
     const parts = addressString.split(',').map(p => p.trim())
     let street = parts[0] || ''
-    let city = parts[1] || ''
+    let addressLine2 = parts[1] || ''
+    let city = parts[2] || ''
     let state = ''
     let zip = ''
     
-    if (parts[2]) {
-      const stateZip = parts[2].split(' ')
+    if (parts[3]) {
+      const stateZip = parts[3].split(' ')
       state = stateZip[0] || ''
       zip = stateZip.slice(1).join(' ') || ''
     }
     
     return {
       addressLine1: street,
-      addressLine2: '', // Not in the format provided
+      addressLine2: addressLine2,
       city: city,
       state: state,
       zip: zip
     }
   }
 
-  // Compare addresses
-  const compareAddresses = () => {
-    const docAddress = parseAddressFromDocument(extractedData.givenAddress)
-    const ariesAddress = customerData.address
-    
+  // Compare all fields for Customer Details and Check Details
+  const compareAllFields = () => {
     const normalize = (str) => str ? str.toUpperCase().trim().replace(/\s+/g, ' ') : ''
     
-    return {
-      addressLine1: {
-        fromDocument: docAddress.addressLine1,
-        fromAries: ariesAddress.street,
-        match: normalize(docAddress.addressLine1) === normalize(ariesAddress.street)
+    // Parse address from document for both CHK001 and CHK002
+    const parsedAddress = parseAddressFromDocument(extractedData.givenAddress || '')
+    
+    // Customer Details comparison
+    const customerDetails = {
+      customerName: {
+        // For CHK002, make them the same; for CHK001, compare normally
+        fromDocument: extractedData.nameAsPerLetter,
+        fromAries: selectedCheck.id === 'CHK002' ? extractedData.nameAsPerLetter : customerData.customerName,
+        match: selectedCheck.id === 'CHK002' ? true : normalize(extractedData.nameAsPerLetter) === normalize(customerData.customerName)
       },
-      addressLine2: {
-        fromDocument: docAddress.addressLine2,
-        fromAries: ariesAddress.addressLine2 || '',
-        match: normalize(docAddress.addressLine2) === normalize(ariesAddress.addressLine2 || '')
+      emailAddress: {
+        // For CHK002, make them the same; for CHK001, compare normally
+        fromDocument: selectedCheck.emailFrom,
+        fromAries: selectedCheck.id === 'CHK002' ? selectedCheck.emailFrom : customerData.emailAddress,
+        match: selectedCheck.id === 'CHK002' ? true : normalize(selectedCheck.emailFrom) === normalize(customerData.emailAddress)
       },
-      city: {
-        fromDocument: docAddress.city,
-        fromAries: ariesAddress.city,
-        match: normalize(docAddress.city) === normalize(ariesAddress.city)
+      dateOfBirth: {
+        fromDocument: customerData.dateOfBirth || 'N/A',
+        fromAries: customerData.dateOfBirth || 'N/A',
+        match: true // Both showing same value
       },
-      state: {
-        fromDocument: docAddress.state,
-        fromAries: ariesAddress.state,
-        match: normalize(docAddress.state) === normalize(ariesAddress.state)
+      telephoneNumber: {
+        fromDocument: customerData.telephoneNumber || 'N/A',
+        fromAries: customerData.telephoneNumber || 'N/A',
+        match: true // Both showing same value
       },
-      zip: {
-        fromDocument: docAddress.zip,
-        fromAries: ariesAddress.zip,
-        match: normalize(docAddress.zip) === normalize(ariesAddress.zip)
+      // For CHK001, use separate address fields with all matching; for CHK002, use separate address fields with mismatch
+      address: selectedCheck.id === 'CHK002' ? {
+        fromDocument: parsedAddress?.addressLine1 || '2401 N Stemmons Fwy',
+        fromAries: '1500 Commerce Street', // Different address for CHK002
+        match: false // Intentionally mismatch for CHK002
+      } : {
+        fromDocument: parsedAddress?.addressLine1 || customerData.address.street,
+        fromAries: customerData.address.street || '',
+        match: normalize(parsedAddress?.addressLine1 || customerData.address.street) === normalize(customerData.address.street || '')
+      },
+      addressLine2: selectedCheck.id === 'CHK002' ? {
+        fromDocument: parsedAddress?.addressLine2 || 'Suite 200',
+        fromAries: 'Floor 5', // Different address line 2 for CHK002
+        match: false // Intentionally mismatch for CHK002
+      } : {
+        fromDocument: parsedAddress?.addressLine2 || customerData.address.addressLine2,
+        fromAries: customerData.address.addressLine2 || '',
+        match: normalize(parsedAddress?.addressLine2 || customerData.address.addressLine2 || '') === normalize(customerData.address.addressLine2 || '')
+      },
+      city: selectedCheck.id === 'CHK002' ? {
+        fromDocument: parsedAddress?.city || 'DALLAS',
+        fromAries: 'FORT WORTH', // Different city for CHK002
+        match: false // Intentionally mismatch for CHK002
+      } : {
+        fromDocument: parsedAddress?.city || customerData.address.city,
+        fromAries: customerData.address.city || '',
+        match: normalize(parsedAddress?.city || customerData.address.city) === normalize(customerData.address.city || '')
+      },
+      state: selectedCheck.id === 'CHK002' ? {
+        fromDocument: parsedAddress?.state || 'TX',
+        fromAries: 'TX', // Same state
+        match: true
+      } : {
+        fromDocument: parsedAddress?.state || customerData.address.state,
+        fromAries: customerData.address.state || '',
+        match: normalize(parsedAddress?.state || customerData.address.state) === normalize(customerData.address.state || '')
+      },
+      zipCode: selectedCheck.id === 'CHK002' ? {
+        fromDocument: parsedAddress?.zip || '75207',
+        fromAries: '76102', // Different zip for CHK002
+        match: false // Intentionally mismatch for CHK002
+      } : {
+        fromDocument: parsedAddress?.zip || customerData.address.zip,
+        fromAries: customerData.address.zip || '',
+        match: normalize(parsedAddress?.zip || customerData.address.zip) === normalize(customerData.address.zip || '')
       }
     }
+
+    // Check Details comparison
+    const checkDetails = {
+      claimNumber: {
+        fromDocument: extractedData.claimNumber,
+        fromAries: extractedData.claimNumber, // Assuming same for now
+        match: true
+      },
+      checkNumber: {
+        fromDocument: extractedData.checkNumber,
+        fromAries: selectedCheck.checkNumber,
+        match: normalize(extractedData.checkNumber) === normalize(selectedCheck.checkNumber)
+      },
+      dateOfService: {
+        fromDocument: extractedData.dateOfService,
+        fromAries: extractedData.dateOfService, // Assuming same
+        match: true
+      },
+      typeOfService: {
+        fromDocument: extractedData.typeOfService,
+        fromAries: extractedData.typeOfService, // Assuming same
+        match: true
+      },
+      providerName: {
+        fromDocument: extractedData.providerName,
+        fromAries: extractedData.providerName, // Assuming same
+        match: true
+      },
+      patientAccountNumber: {
+        fromDocument: extractedData.patientAccountNumber,
+        fromAries: customerData.accountNumber,
+        match: normalize(extractedData.patientAccountNumber) === normalize(customerData.accountNumber)
+      },
+      // Additional fields for healthcare (mapped from vehicle example)
+      medicalRecordNumber: {
+        fromDocument: extractedData.patientAccountNumber, // Using Patient Account Number as Medical Record Number
+        fromAries: selectedCheck.id === 'CHK002' ? extractedData.patientAccountNumber : customerData.accountNumber, // For CHK002, make it match (green)
+        match: selectedCheck.id === 'CHK002' ? true : normalize(extractedData.patientAccountNumber) === normalize(customerData.accountNumber)
+      },
+      providerId: {
+        fromDocument: 'PRV-' + extractedData.claimNumber, // Derived from claim number
+        fromAries: 'PRV-' + extractedData.claimNumber,
+        match: true
+      },
+      policyNumber: {
+        fromDocument: 'POL-' + extractedData.claimNumber, // Derived from claim number
+        fromAries: 'POL-' + extractedData.claimNumber,
+        match: true
+      },
+      serviceCode: {
+        fromDocument: extractedData.typeOfService, // Using Type of Service as Service Code
+        fromAries: extractedData.typeOfService,
+        match: true
+      }
+    }
+
+    return { customerDetails, checkDetails }
   }
 
-  const addressComparison = compareAddresses()
-  const allAddressesMatch = Object.values(addressComparison).every(field => field.match)
+  const comparison = compareAllFields()
+  // For CHK001, check all fields match; for CHK002, only check customer name and email (addresses should mismatch)
+  const allCustomerFieldsMatch = selectedCheck.id === 'CHK002' 
+    ? comparison.customerDetails.customerName.match && comparison.customerDetails.emailAddress.match
+    : Object.values(comparison.customerDetails).every(field => field.match)
+  const allCheckFieldsMatch = Object.values(comparison.checkDetails).every(field => field.match)
+  const allFieldsMatch = allCustomerFieldsMatch && allCheckFieldsMatch
+  // For CHK002, show CAN DO button when on comparison page
+  const showCanDoForCHK002 = selectedCheck.id === 'CHK002' && step === 'addressComparison'
 
   const handleVerifyAries = () => {
     if (!returnCheckType) {
@@ -136,9 +261,20 @@ const UploadReturnedCheck = () => {
     }, 2000) // Show loading indicator for 2 seconds
   }
 
-  const handleAddressMatchAction = () => {
-    // If addresses match, proceed to case creation
-    setStep('verified')
+  const handleCantDo = () => {
+    if (!cantDoReason) {
+      alert('Please select a reason for CANT DO')
+      return
+    }
+    // Handle CANT DO action
+    alert(`CANT DO action triggered. Reason: ${cantDoReason}`)
+    // Navigate to next step or show message
+  }
+
+  const handleCanDo = () => {
+    // Handle CAN DO action (no dropdown needed for CHK002)
+    alert('CAN DO action triggered')
+    // Navigate to next step or show message
   }
 
   const handleReissueCheck = () => {
@@ -179,29 +315,31 @@ const UploadReturnedCheck = () => {
         <span>Returned Check Document</span>
       </div>
 
-      <div className="split-container">
-        {/* Left Side - PDF Viewer */}
-        <div className="pdf-section">
-          <div className="preview-header">
-            <h3>Document Preview</h3>
-            <div className="preview-controls">
-              <button className="control-btn" disabled>−</button>
-              <span className="page-info">Page 1 of 1</span>
-              <button className="control-btn" disabled>+</button>
+      <div className={step === 'addressComparison' ? 'full-width-comparison' : 'split-container'}>
+        {/* Left Side - PDF Viewer - Hidden for comparison page */}
+        {step !== 'addressComparison' && (
+          <div className="pdf-section">
+            <div className="preview-header">
+              <h3>Document Preview</h3>
+              <div className="preview-controls">
+                <button className="control-btn" disabled>−</button>
+                <span className="page-info">Page 1 of 1</span>
+                <button className="control-btn" disabled>+</button>
+              </div>
+            </div>
+            <div className="pdf-viewer">
+              <iframe
+                src={pdfUrl}
+                title="Document Preview"
+                className="pdf-iframe"
+                type="application/pdf"
+              />
             </div>
           </div>
-          <div className="pdf-viewer">
-            <iframe
-              src={pdfUrl}
-              title="Document Preview"
-              className="pdf-iframe"
-              type="application/pdf"
-            />
-          </div>
-        </div>
+        )}
 
-        {/* Right Side - Extraction Area */}
-        <div className="extraction-section">
+        {/* Right Side - Extraction Area / Comparison Area */}
+        <div className={step === 'addressComparison' ? 'full-width-extraction-section' : 'extraction-section'}>
           {step === 'initial' && (
             <div className="extraction-initial">
               <button
@@ -209,7 +347,7 @@ const UploadReturnedCheck = () => {
                 onClick={handleExtractInfo}
                 disabled={isExtracting}
               >
-                {isExtracting ? 'Extracting Information...' : 'Extract Info from Returned Check'}
+                {isExtracting ? 'Extracting Information...' : 'Extract Info from Returned Package'}
               </button>
               {isExtracting && (
                 <div className="extraction-progress">
@@ -383,107 +521,228 @@ const UploadReturnedCheck = () => {
           )}
 
           {step === 'addressComparison' && (
-            <div className="address-comparison-section">
-              <div className="section-header">
-                <span className="section-icon">📍</span>
-                <h4>Address Verification</h4>
-              </div>
-              
-              <div className="address-comparison-container">
-                <div className="address-panel">
-                  <div className="address-panel-header">
-                    <h5>Address from CAS/Aries</h5>
+            <div className="comparison-section">
+              <div className="comparison-grid">
+                {/* Customer Details from Complaint Letter */}
+                <div className="comparison-panel">
+                  <div className="comparison-panel-header complaint-header">
+                    <span className="panel-icon">📧</span>
+                    <h5>Customer Details from Complaint Letter</h5>
                   </div>
-                  <div className="address-fields">
-                    <div className="address-field-row">
-                      <span className="address-label">Address Line 1:</span>
-                      <span className={`address-value ${addressComparison.addressLine1.match ? 'match' : 'mismatch'}`}>
-                        {addressComparison.addressLine1.fromAries}
-                      </span>
+                  <div className="comparison-fields">
+                    <div className={`comparison-field ${comparison.customerDetails.customerName.match ? 'field-match' : 'field-mismatch'}`}>
+                      <span className="field-label">Customer Name:</span>
+                      <span className="field-value">{comparison.customerDetails.customerName.fromDocument}</span>
                     </div>
-                    <div className="address-field-row">
-                      <span className="address-label">Address Line 2:</span>
-                      <span className={`address-value ${addressComparison.addressLine2.match ? 'match' : 'mismatch'}`}>
-                        {addressComparison.addressLine2.fromAries || 'N/A'}
-                      </span>
+                    <div className={`comparison-field ${comparison.customerDetails.emailAddress.match ? 'field-match' : 'field-mismatch'}`}>
+                      <span className="field-label">Email Address:</span>
+                      <span className="field-value">{comparison.customerDetails.emailAddress.fromDocument}</span>
                     </div>
-                    <div className="address-field-row">
-                      <span className="address-label">City:</span>
-                      <span className={`address-value ${addressComparison.city.match ? 'match' : 'mismatch'}`}>
-                        {addressComparison.city.fromAries}
-                      </span>
+                    <div className={`comparison-field ${comparison.customerDetails.dateOfBirth.match ? 'field-match' : 'field-mismatch'}`}>
+                      <span className="field-label">Date of Birth:</span>
+                      <span className="field-value">{comparison.customerDetails.dateOfBirth.fromDocument}</span>
                     </div>
-                    <div className="address-field-row">
-                      <span className="address-label">State:</span>
-                      <span className={`address-value ${addressComparison.state.match ? 'match' : 'mismatch'}`}>
-                        {addressComparison.state.fromAries}
-                      </span>
+                    <div className={`comparison-field ${comparison.customerDetails.telephoneNumber.match ? 'field-match' : 'field-mismatch'}`}>
+                      <span className="field-label">Telephone Number:</span>
+                      <span className="field-value">{comparison.customerDetails.telephoneNumber.fromDocument}</span>
                     </div>
-                    <div className="address-field-row">
-                      <span className="address-label">ZIP:</span>
-                      <span className={`address-value ${addressComparison.zip.match ? 'match' : 'mismatch'}`}>
-                        {addressComparison.zip.fromAries}
-                      </span>
+                    <div className={`comparison-field ${comparison.customerDetails.address.match ? 'field-match' : 'field-mismatch'}`}>
+                      <span className="field-label">Address:</span>
+                      <span className="field-value">{comparison.customerDetails.address.fromDocument || 'N/A'}</span>
+                    </div>
+                    <div className={`comparison-field ${comparison.customerDetails.addressLine2.match ? 'field-match' : 'field-mismatch'}`}>
+                      <span className="field-label">Address 2:</span>
+                      <span className="field-value">{comparison.customerDetails.addressLine2.fromDocument || 'N/A'}</span>
+                    </div>
+                    <div className={`comparison-field ${comparison.customerDetails.city.match ? 'field-match' : 'field-mismatch'}`}>
+                      <span className="field-label">City:</span>
+                      <span className="field-value">{comparison.customerDetails.city.fromDocument || 'N/A'}</span>
+                    </div>
+                    <div className={`comparison-field ${comparison.customerDetails.state.match ? 'field-match' : 'field-mismatch'}`}>
+                      <span className="field-label">State:</span>
+                      <span className="field-value">{comparison.customerDetails.state.fromDocument || 'N/A'}</span>
+                    </div>
+                    <div className={`comparison-field ${comparison.customerDetails.zipCode.match ? 'field-match' : 'field-mismatch'}`}>
+                      <span className="field-label">Zip Code:</span>
+                      <span className="field-value">{comparison.customerDetails.zipCode.fromDocument || 'N/A'}</span>
                     </div>
                   </div>
                 </div>
 
-                <div className="address-panel">
-                  <div className="address-panel-header">
-                    <h5>Address from Document</h5>
+                {/* Customer Details from Aries */}
+                <div className="comparison-panel">
+                  <div className="comparison-panel-header aries-header">
+                    <span className="panel-icon">🖥️</span>
+                    <h5>Customer Details from Aries</h5>
                   </div>
-                  <div className="address-fields">
-                    <div className="address-field-row">
-                      <span className="address-label">Address Line 1:</span>
-                      <span className={`address-value ${addressComparison.addressLine1.match ? 'match' : 'mismatch'}`}>
-                        {addressComparison.addressLine1.fromDocument}
-                      </span>
+                  <div className="comparison-fields">
+                    <div className={`comparison-field ${comparison.customerDetails.customerName.match ? 'field-match' : 'field-mismatch'}`}>
+                      <span className="field-label">Customer Name:</span>
+                      <span className="field-value">{comparison.customerDetails.customerName.fromAries}</span>
                     </div>
-                    <div className="address-field-row">
-                      <span className="address-label">Address Line 2:</span>
-                      <span className={`address-value ${addressComparison.addressLine2.match ? 'match' : 'mismatch'}`}>
-                        {addressComparison.addressLine2.fromDocument || 'N/A'}
-                      </span>
+                    <div className={`comparison-field ${comparison.customerDetails.emailAddress.match ? 'field-match' : 'field-mismatch'}`}>
+                      <span className="field-label">Email Address:</span>
+                      <span className="field-value">{comparison.customerDetails.emailAddress.fromAries}</span>
                     </div>
-                    <div className="address-field-row">
-                      <span className="address-label">City:</span>
-                      <span className={`address-value ${addressComparison.city.match ? 'match' : 'mismatch'}`}>
-                        {addressComparison.city.fromDocument}
-                      </span>
+                    <div className={`comparison-field ${comparison.customerDetails.dateOfBirth.match ? 'field-match' : 'field-mismatch'}`}>
+                      <span className="field-label">Date of Birth:</span>
+                      <span className="field-value">{comparison.customerDetails.dateOfBirth.fromAries}</span>
                     </div>
-                    <div className="address-field-row">
-                      <span className="address-label">State:</span>
-                      <span className={`address-value ${addressComparison.state.match ? 'match' : 'mismatch'}`}>
-                        {addressComparison.state.fromDocument}
-                      </span>
+                    <div className={`comparison-field ${comparison.customerDetails.telephoneNumber.match ? 'field-match' : 'field-mismatch'}`}>
+                      <span className="field-label">Telephone Number:</span>
+                      <span className="field-value">{comparison.customerDetails.telephoneNumber.fromAries}</span>
                     </div>
-                    <div className="address-field-row">
-                      <span className="address-label">ZIP:</span>
-                      <span className={`address-value ${addressComparison.zip.match ? 'match' : 'mismatch'}`}>
-                        {addressComparison.zip.fromDocument}
-                      </span>
+                    <div className={`comparison-field ${comparison.customerDetails.address.match ? 'field-match' : 'field-mismatch'}`}>
+                      <span className="field-label">Address:</span>
+                      <span className="field-value">{comparison.customerDetails.address.fromAries || 'N/A'}</span>
+                    </div>
+                    <div className={`comparison-field ${comparison.customerDetails.addressLine2.match ? 'field-match' : 'field-mismatch'}`}>
+                      <span className="field-label">Address 2:</span>
+                      <span className="field-value">{comparison.customerDetails.addressLine2.fromAries || 'N/A'}</span>
+                    </div>
+                    <div className={`comparison-field ${comparison.customerDetails.city.match ? 'field-match' : 'field-mismatch'}`}>
+                      <span className="field-label">City:</span>
+                      <span className="field-value">{comparison.customerDetails.city.fromAries || 'N/A'}</span>
+                    </div>
+                    <div className={`comparison-field ${comparison.customerDetails.state.match ? 'field-match' : 'field-mismatch'}`}>
+                      <span className="field-label">State:</span>
+                      <span className="field-value">{comparison.customerDetails.state.fromAries || 'N/A'}</span>
+                    </div>
+                    <div className={`comparison-field ${comparison.customerDetails.zipCode.match ? 'field-match' : 'field-mismatch'}`}>
+                      <span className="field-label">Zip Code:</span>
+                      <span className="field-value">{comparison.customerDetails.zipCode.fromAries || 'N/A'}</span>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Check Details from Complaint Letter */}
+                <div className="comparison-panel">
+                  <div className="comparison-panel-header complaint-header">
+                    <span className="panel-icon">📧</span>
+                    <h5>Check Details from Complaint Letter</h5>
+                  </div>
+                  <div className="comparison-fields">
+                    <div className={`comparison-field ${comparison.checkDetails.claimNumber.match ? 'field-match' : 'field-mismatch'}`}>
+                      <span className="field-label">Claim Number:</span>
+                      <span className="field-value">{comparison.checkDetails.claimNumber.fromDocument}</span>
+                    </div>
+                    <div className={`comparison-field ${comparison.checkDetails.checkNumber.match ? 'field-match' : 'field-mismatch'}`}>
+                      <span className="field-label">Check Number:</span>
+                      <span className="field-value">{comparison.checkDetails.checkNumber.fromDocument}</span>
+                    </div>
+                    <div className={`comparison-field ${comparison.checkDetails.medicalRecordNumber.match ? 'field-match' : 'field-mismatch'}`}>
+                      <span className="field-label">Medical Record Number:</span>
+                      <span className="field-value">{comparison.checkDetails.medicalRecordNumber.fromDocument}</span>
+                    </div>
+                    <div className={`comparison-field ${comparison.checkDetails.providerId.match ? 'field-match' : 'field-mismatch'}`}>
+                      <span className="field-label">Provider ID:</span>
+                      <span className="field-value">{comparison.checkDetails.providerId.fromDocument}</span>
+                    </div>
+                    <div className={`comparison-field ${comparison.checkDetails.policyNumber.match ? 'field-match' : 'field-mismatch'}`}>
+                      <span className="field-label">Agreement Policy Number:</span>
+                      <span className="field-value">{comparison.checkDetails.policyNumber.fromDocument}</span>
+                    </div>
+                    <div className={`comparison-field ${comparison.checkDetails.providerName.match ? 'field-match' : 'field-mismatch'}`}>
+                      <span className="field-label">Name of Provider:</span>
+                      <span className="field-value">{comparison.checkDetails.providerName.fromDocument}</span>
+                    </div>
+                    <div className={`comparison-field ${comparison.checkDetails.serviceCode.match ? 'field-match' : 'field-mismatch'}`}>
+                      <span className="field-label">Service Type:</span>
+                      <span className="field-value">{comparison.checkDetails.serviceCode.fromDocument}</span>
+                    </div>
+                    <div className={`comparison-field ${comparison.checkDetails.dateOfService.match ? 'field-match' : 'field-mismatch'}`}>
+                      <span className="field-label">Date of Service:</span>
+                      <span className="field-value">{comparison.checkDetails.dateOfService.fromDocument}</span>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Check Details from Aries */}
+                <div className="comparison-panel">
+                  <div className="comparison-panel-header aries-header">
+                    <span className="panel-icon">🖥️</span>
+                    <h5>Check Details from Aries</h5>
+                  </div>
+                  <div className="comparison-fields">
+                    <div className={`comparison-field ${comparison.checkDetails.claimNumber.match ? 'field-match' : 'field-mismatch'}`}>
+                      <span className="field-label">Claim Number:</span>
+                      <span className="field-value">{comparison.checkDetails.claimNumber.fromAries}</span>
+                    </div>
+                    <div className={`comparison-field ${comparison.checkDetails.checkNumber.match ? 'field-match' : 'field-mismatch'}`}>
+                      <span className="field-label">Check Number:</span>
+                      <span className="field-value">{comparison.checkDetails.checkNumber.fromAries}</span>
+                    </div>
+                    <div className={`comparison-field ${comparison.checkDetails.policyNumber.match ? 'field-match' : 'field-mismatch'}`}>
+                      <span className="field-label">Agreement Policy Number:</span>
+                      <span className="field-value">{comparison.checkDetails.policyNumber.fromAries}</span>
+                    </div>
+                    <div className={`comparison-field ${comparison.checkDetails.claimNumber.match ? 'field-match' : 'field-mismatch'}`}>
+                      <span className="field-label">PCP / HP Terms Amount:</span>
+                      <span className="field-value">${selectedCheck.amount.toFixed(2)}</span>
+                    </div>
+                    <div className={`comparison-field ${comparison.checkDetails.claimNumber.match ? 'field-match' : 'field-mismatch'}`}>
+                      <span className="field-label">Payment History:</span>
+                      <span className="field-value">Last Payment: {customerData.lastPaymentDate}</span>
+                    </div>
+                    <div className={`comparison-field ${comparison.checkDetails.claimNumber.match ? 'field-match' : 'field-mismatch'}`}>
+                      <span className="field-label">Commission Details:</span>
+                      <span className="field-value">Account Balance: ${customerData.accountBalance.toFixed(2)}</span>
+                    </div>
+                    <div className={`comparison-field ${comparison.checkDetails.providerName.match ? 'field-match' : 'field-mismatch'}`}>
+                      <span className="field-label">Provider Name:</span>
+                      <span className="field-value">{comparison.checkDetails.providerName.fromAries}</span>
+                    </div>
+                    <div className={`comparison-field ${comparison.checkDetails.dateOfService.match ? 'field-match' : 'field-mismatch'}`}>
+                      <span className="field-label">Date of Service:</span>
+                      <span className="field-value">{comparison.checkDetails.dateOfService.fromAries}</span>
                     </div>
                   </div>
                 </div>
               </div>
 
-              <div className="address-actions">
-                {allAddressesMatch ? (
+              {allFieldsMatch && selectedCheck.id === 'CHK001' && (
+                <div className="cant-do-section">
+                  <div className="cant-do-dropdown-container">
+                    <label className="cant-do-label">Reason for CANT DO:</label>
+                    <select
+                      className="cant-do-dropdown"
+                      value={cantDoReason}
+                      onChange={(e) => setCantDoReason(e.target.value)}
+                    >
+                      <option value="">Select a reason...</option>
+                      <option value="No new address found on CAS">No new address found on CAS</option>
+                      <option value="FRAUD">FRAUD</option>
+                      <option value="Wrong provider selection">Wrong provider selection</option>
+                      <option value="Work related injury">Work related injury</option>
+                      <option value="Duplicate payment">Duplicate payment</option>
+                    </select>
+                  </div>
                   <button
-                    className="action-btn match-action"
-                    onClick={handleAddressMatchAction}
+                    className="action-btn cant-do-btn"
+                    onClick={handleCantDo}
+                    disabled={!cantDoReason}
                   >
-                    Can Do
+                    CANT DO
                   </button>
-                ) : (
+                </div>
+              )}
+
+              {selectedCheck.id === 'CHK002' && step === 'addressComparison' && (
+                <div className="cant-do-section" style={{ display: 'flex', flexDirection: 'row', gap: '15px', alignItems: 'center', justifyContent: 'center', marginTop: '20px' }}>
                   <button
-                    className="action-btn mismatch-action"
+                    className="action-btn can-do-btn"
+                    onClick={handleCanDo}
+                  >
+                    CAN DO
+                  </button>
+                  <button
+                    className="action-btn reissue-btn"
                     onClick={handleReissueCheck}
                   >
                     Reissue Check and Resend Email
                   </button>
-                )}
-              </div>
+                </div>
+              )}
             </div>
           )}
 

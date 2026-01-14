@@ -7,60 +7,28 @@ export const mockReturnedChecks = [
     amount: 24.98,
     returnReason: 'Overpayment by Secondary Payor',
     receivedDate: '2 hours ago',
-    status: 'pending',
-    pdfUrl: '/check-document.pdf' // PDF present
+    status: 'inProgress',
+    pdfUrl: '/returned-check.pdf' // First PDF
   },
   {
     id: 'CHK002',
     checkNumber: '1234567891',
-    emailFrom: 'sarah.johnson@email.com',
-    accountHolder: 'Sarah Johnson',
-    amount: 850.50,
+    emailFrom: 'claims@healthcareprovider.com',
+    accountHolder: 'Auto Finance Solutions LLC',
+    amount: 1250.00,
     returnReason: 'Account Closed',
     receivedDate: '1 day ago',
-    status: 'extracted',
-    pdfUrl: null // No PDF
-  },
-  {
-    id: 'CHK003',
-    checkNumber: '1234567892',
-    emailFrom: 'michael.brown@email.com',
-    accountHolder: 'Michael Brown',
-    amount: 2100.00,
-    returnReason: 'Stop Payment',
-    receivedDate: '3 days ago',
-    status: 'validated',
-    pdfUrl: '/check-document.pdf' // PDF present
-  },
-  {
-    id: 'CHK004',
-    checkNumber: '1234567893',
-    emailFrom: 'emily.davis@email.com',
-    accountHolder: 'Emily Davis',
-    amount: 450.75,
-    returnReason: 'Insufficient Funds',
-    receivedDate: '5 days ago',
-    status: 'resolved',
-    pdfUrl: null // No PDF
-  },
-  {
-    id: 'CHK005',
-    checkNumber: '1234567894',
-    emailFrom: 'robert.wilson@email.com',
-    accountHolder: 'Robert Wilson',
-    amount: 3200.00,
-    returnReason: 'Unauthorized Signature',
-    receivedDate: '1 week ago',
-    status: 'escalated',
-    pdfUrl: '/check-document.pdf' // PDF present
+    status: 'received',
+    pdfUrl: '/2nd.pdf' // Second PDF - Vehicle related
   }
 ]
 
+// Extracted data for CHK001 (Healthcare - Baylor Scott and White Health)
 export const mockExtractedData = {
   claimNumber: '26337', // 5-digit claim number (truncated from Check/EFT Number in PDF)
   checkNumber: '9901585', // From Check No. in PDF remittance section
   nameAsPerLetter: 'BaylorScott & White HEALTH', // From document header
-  givenAddress: 'PO BOX 844658, DALLAS, TX 752844658', // Payment Made To address
+  givenAddress: '2401 N Stemmons Fwy, Suite 200, DALLAS, TX 75207', // Payment Made To address
   dateOfService: '04/29/2025', // Date(s) of Service from PDF
   typeOfService: 'OUTPT HSP (Outpatient Hospital)', // Type of Service from PDF
   providerName: 'SCOTT & WHITE HOSPITAL - ROUND ROCK', // Payment Made To provider name from PDF
@@ -83,6 +51,34 @@ export const mockExtractedData = {
   }
 }
 
+// Extracted data for CHK002 (Vehicle - Auto Finance Solutions LLC)
+export const mockExtractedDataCHK002 = {
+  claimNumber: 'VH-2024-789', // Vehicle claim number
+  checkNumber: '1234567891', // From Check No. in PDF
+  nameAsPerLetter: 'Auto Finance Solutions LLC', // From document header
+  givenAddress: '2401 N Stemmons Fwy, Suite 200, DALLAS, TX 75207', // Payment address
+  dateOfService: '03/15/2024', // Service/Purchase Date
+  typeOfService: 'Vehicle Finance Payment', // Type of Service
+  providerName: 'Auto Finance Solutions LLC', // Provider/Dealer name
+  patientAccountNumber: 'VIN-ABC123456789', // Vehicle Identification Number or Account Number
+  background: 'Vehicle finance payment returned due to account closure. Original purchase date: 03/15/2024. Vehicle: 2023 Honda Accord. Finance amount: $25,000.00. Monthly payment: $450.00. Returned check amount: $1,250.00. Payment method: Check.',
+  complaintDescription: 'Account was closed prior to check processing. Customer claims account should have remained open. Check number 1234567891 was returned unpaid. Account closure date: 02/28/2024. Customer disputes the account closure and claims proper notice was not received.',
+  financialImpactOnBuyer: '$1,250.00', // Returned check amount
+  confidence: {
+    claimNumber: 0.95,
+    checkNumber: 0.98,
+    nameAsPerLetter: 0.97,
+    givenAddress: 0.92,
+    dateOfService: 0.96,
+    typeOfService: 0.94,
+    providerName: 0.97,
+    patientAccountNumber: 0.93,
+    background: 0.90,
+    complaintDescription: 0.91,
+    financialImpactOnBuyer: 0.98
+  }
+}
+
 export const mockValidationResults = {
   accountExists: { status: 'pass', message: 'Account found in system' },
   accountMatch: { status: 'pass', message: 'Account holder name matches' },
@@ -97,14 +93,14 @@ export const mockCustomerData = {
   accountNumber: 'ACC-779545685', // From Patient Account Number/Vendor No. in PDF
   customerName: 'BaylorScott & White HEALTH', // From name as per letter in extracted data
   emailAddress: 'billing@bswhealth.org', // From email from in mockReturnedChecks
-  dateOfBirth: 'N/A', // Not available in PDF
+  dateOfBirth: '01/15/1985', // Date of Birth
   telephoneNumber: '855-252-8782', // From NOVITAS SOLUTIONS phone in PDF
   address: {
-    street: 'PO BOX 844658',
-    addressLine2: '',
+    street: '2401 N Stemmons Fwy',
+    addressLine2: 'Suite 200',
     city: 'DALLAS',
     state: 'TX',
-    zip: '752844658'
+    zip: '75207'
   },
   accountStatus: 'Active',
   lastPaymentDate: '10-06-2025', // From Payment Date in PDF

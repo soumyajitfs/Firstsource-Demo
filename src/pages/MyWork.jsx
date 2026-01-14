@@ -14,13 +14,10 @@ const MyWork = () => {
 
   const getStatusBadge = (status) => {
     const statusConfig = {
-      'pending': { class: 'status-pending', label: 'Pending' },
-      'extracted': { class: 'status-extracted', label: 'Extracted' },
-      'validated': { class: 'status-validated', label: 'Validated' },
-      'resolved': { class: 'status-resolved', label: 'Resolved' },
-      'escalated': { class: 'status-escalated', label: 'Escalated' }
+      'inProgress': { class: 'status-pending', label: 'In Progress' },
+      'received': { class: 'status-extracted', label: 'Received' }
     }
-    const config = statusConfig[status] || statusConfig['pending']
+    const config = statusConfig[status] || statusConfig['received']
     return <span className={`status-badge ${config.class}`}>{config.label}</span>
   }
 
@@ -46,22 +43,16 @@ const MyWork = () => {
             All ({checks.length})
           </button>
           <button 
-            className={filter === 'pending' ? 'active' : ''}
-            onClick={() => setFilter('pending')}
+            className={filter === 'inProgress' ? 'active' : ''}
+            onClick={() => setFilter('inProgress')}
           >
-            Pending ({checks.filter(c => c.status === 'pending').length})
+            In Progress ({checks.filter(c => c.status === 'inProgress').length})
           </button>
           <button 
-            className={filter === 'extracted' ? 'active' : ''}
-            onClick={() => setFilter('extracted')}
+            className={filter === 'received' ? 'active' : ''}
+            onClick={() => setFilter('received')}
           >
-            Extracted ({checks.filter(c => c.status === 'extracted').length})
-          </button>
-          <button 
-            className={filter === 'resolved' ? 'active' : ''}
-            onClick={() => setFilter('resolved')}
-          >
-            Resolved ({checks.filter(c => c.status === 'resolved').length})
+            Received ({checks.filter(c => c.status === 'received').length})
           </button>
         </div>
       </div>
@@ -78,7 +69,6 @@ const MyWork = () => {
           <table className="checks-table">
             <thead>
               <tr>
-                <th>Email From</th>
                 <th>Account Holder</th>
                 <th>Return Reason</th>
                 <th>Attachment</th>
@@ -90,7 +80,6 @@ const MyWork = () => {
             <tbody>
               {filteredChecks.map((check) => (
                 <tr key={check.id}>
-                  <td>{check.emailFrom}</td>
                   <td>{check.accountHolder}</td>
                   <td>{check.returnReason}</td>
                   <td>
