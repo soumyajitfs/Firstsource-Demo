@@ -309,6 +309,58 @@ const StopPaymentUpload = () => {
   }
 
   const comparison = compareAllFields()
+
+  // For Stop Payment flow: determine if all customer address fields match
+  const allAddressFieldsMatch = [
+    comparison.customerDetails.address,
+    comparison.customerDetails.addressLine2,
+    comparison.customerDetails.city,
+    comparison.customerDetails.state,
+    comparison.customerDetails.zipCode
+  ].every((field) => field.match)
+
+  // Normalize helper for row-level comparison across Letter, CAS, and EHub
+  const normalizeValue = (str) =>
+    str ? str.toString().toUpperCase().trim().replace(/\s+/g, ' ') : ''
+
+  // Name row: Letter vs CAS vs EHub
+  const nameRowMatch =
+    normalizeValue(comparison.customerDetails.customerName.fromDocument) ===
+      normalizeValue(comparison.customerDetails.customerName.fromAries) &&
+    normalizeValue(comparison.customerDetails.customerName.fromDocument) ===
+      normalizeValue(comparison.eHubAddress.name)
+
+  // Row-level match flags: Letter vs CAS vs EHub must all match to be green
+  const addressLine1RowMatch =
+    normalizeValue(comparison.customerDetails.address.fromDocument) ===
+      normalizeValue(comparison.customerDetails.address.fromAries) &&
+    normalizeValue(comparison.customerDetails.address.fromDocument) ===
+      normalizeValue(comparison.eHubAddress.addressLine1)
+
+  const addressLine2RowMatch =
+    normalizeValue(comparison.customerDetails.addressLine2.fromDocument) ===
+      normalizeValue(comparison.customerDetails.addressLine2.fromAries) &&
+    normalizeValue(comparison.customerDetails.addressLine2.fromDocument) ===
+      normalizeValue(comparison.eHubAddress.addressLine2)
+
+  const cityRowMatch =
+    normalizeValue(comparison.customerDetails.city.fromDocument) ===
+      normalizeValue(comparison.customerDetails.city.fromAries) &&
+    normalizeValue(comparison.customerDetails.city.fromDocument) ===
+      normalizeValue(comparison.eHubAddress.city)
+
+  const stateRowMatch =
+    normalizeValue(comparison.customerDetails.state.fromDocument) ===
+      normalizeValue(comparison.customerDetails.state.fromAries) &&
+    normalizeValue(comparison.customerDetails.state.fromDocument) ===
+      normalizeValue(comparison.eHubAddress.state)
+
+  const zipRowMatch =
+    normalizeValue(comparison.customerDetails.zipCode.fromDocument) ===
+      normalizeValue(comparison.customerDetails.zipCode.fromAries) &&
+    normalizeValue(comparison.customerDetails.zipCode.fromDocument) ===
+      normalizeValue(comparison.eHubAddress.zip)
+
   const allCustomerFieldsMatch =
     selectedCheck.id === 'CHK002'
       ? comparison.customerDetails.customerName.match &&
@@ -583,7 +635,11 @@ const StopPaymentUpload = () => {
           {step === 'addressComparison' && (
             <div className="comparison-section">
               <div className="comparison-grid">
-                <div className="address-matrix-card">
+                <div
+                  className={`address-matrix-card ${
+                    allAddressFieldsMatch ? 'address-match' : 'address-mismatch'
+                  }`}
+                >
                   <div className="address-matrix-header">
                     <h4>Customer Address Comparison</h4>
                     <span className="address-matrix-subtitle">
@@ -602,109 +658,145 @@ const StopPaymentUpload = () => {
                     <tbody>
                       <tr>
                         <td className="address-label-cell">Name</td>
-                        <td className="address-value-cell">
+                        <td
+                          className={`address-value-cell ${
+                            nameRowMatch ? 'match' : 'mismatch'
+                          }`}
+                        >
                           {comparison.customerDetails.customerName.fromDocument}
                         </td>
                         <td
                           className={`address-value-cell ${
-                            comparison.customerDetails.customerName.match
-                              ? 'field-match'
-                              : 'field-mismatch'
+                            nameRowMatch ? 'match' : 'mismatch'
                           }`}
                         >
                           {comparison.customerDetails.customerName.fromAries}
                         </td>
-                        <td className="address-value-cell">
+                        <td
+                          className={`address-value-cell ${
+                            nameRowMatch ? 'match' : 'mismatch'
+                          }`}
+                        >
                           {comparison.eHubAddress.name}
                         </td>
                       </tr>
                       <tr>
                         <td className="address-label-cell">Address Line 1</td>
-                        <td className="address-value-cell">
+                        <td
+                          className={`address-value-cell ${
+                            addressLine1RowMatch ? 'match' : 'mismatch'
+                          }`}
+                        >
                           {comparison.customerDetails.address.fromDocument}
                         </td>
                         <td
                           className={`address-value-cell ${
-                            comparison.customerDetails.address.match
-                              ? 'field-match'
-                              : 'field-mismatch'
+                            addressLine1RowMatch ? 'match' : 'mismatch'
                           }`}
                         >
                           {comparison.customerDetails.address.fromAries}
                         </td>
-                        <td className="address-value-cell">
+                        <td
+                          className={`address-value-cell ${
+                            addressLine1RowMatch ? 'match' : 'mismatch'
+                          }`}
+                        >
                           {comparison.eHubAddress.addressLine1}
                         </td>
                       </tr>
                       <tr>
                         <td className="address-label-cell">Address Line 2</td>
-                        <td className="address-value-cell">
+                        <td
+                          className={`address-value-cell ${
+                            addressLine2RowMatch ? 'match' : 'mismatch'
+                          }`}
+                        >
                           {comparison.customerDetails.addressLine2.fromDocument}
                         </td>
                         <td
                           className={`address-value-cell ${
-                            comparison.customerDetails.addressLine2.match
-                              ? 'field-match'
-                              : 'field-mismatch'
+                            addressLine2RowMatch ? 'match' : 'mismatch'
                           }`}
                         >
                           {comparison.customerDetails.addressLine2.fromAries}
                         </td>
-                        <td className="address-value-cell">
+                        <td
+                          className={`address-value-cell ${
+                            addressLine2RowMatch ? 'match' : 'mismatch'
+                          }`}
+                        >
                           {comparison.eHubAddress.addressLine2}
                         </td>
                       </tr>
                       <tr>
                         <td className="address-label-cell">City</td>
-                        <td className="address-value-cell">
+                        <td
+                          className={`address-value-cell ${
+                            cityRowMatch ? 'match' : 'mismatch'
+                          }`}
+                        >
                           {comparison.customerDetails.city.fromDocument}
                         </td>
                         <td
                           className={`address-value-cell ${
-                            comparison.customerDetails.city.match
-                              ? 'field-match'
-                              : 'field-mismatch'
+                            cityRowMatch ? 'match' : 'mismatch'
                           }`}
                         >
                           {comparison.customerDetails.city.fromAries}
                         </td>
-                        <td className="address-value-cell">
+                        <td
+                          className={`address-value-cell ${
+                            cityRowMatch ? 'match' : 'mismatch'
+                          }`}
+                        >
                           {comparison.eHubAddress.city}
                         </td>
                       </tr>
                       <tr>
                         <td className="address-label-cell">State</td>
-                        <td className="address-value-cell">
+                        <td
+                          className={`address-value-cell ${
+                            stateRowMatch ? 'match' : 'mismatch'
+                          }`}
+                        >
                           {comparison.customerDetails.state.fromDocument}
                         </td>
                         <td
                           className={`address-value-cell ${
-                            comparison.customerDetails.state.match
-                              ? 'field-match'
-                              : 'field-mismatch'
+                            stateRowMatch ? 'match' : 'mismatch'
                           }`}
                         >
                           {comparison.customerDetails.state.fromAries}
                         </td>
-                        <td className="address-value-cell">
+                        <td
+                          className={`address-value-cell ${
+                            stateRowMatch ? 'match' : 'mismatch'
+                          }`}
+                        >
                           {comparison.eHubAddress.state}
                         </td>
                       </tr>
                       <tr>
                         <td className="address-label-cell">Zip</td>
-                        <td className="address-value-cell">
+                        <td
+                          className={`address-value-cell ${
+                            zipRowMatch ? 'match' : 'mismatch'
+                          }`}
+                        >
                           {comparison.customerDetails.zipCode.fromDocument}
                         </td>
                         <td
                           className={`address-value-cell ${
-                            comparison.customerDetails.zipCode.match
-                              ? 'field-match'
-                              : 'field-mismatch'
+                            zipRowMatch ? 'match' : 'mismatch'
                           }`}
                         >
                           {comparison.customerDetails.zipCode.fromAries}
                         </td>
-                        <td className="address-value-cell">
+                        <td
+                          className={`address-value-cell ${
+                            zipRowMatch ? 'match' : 'mismatch'
+                          }`}
+                        >
                           {comparison.eHubAddress.zip}
                         </td>
                       </tr>

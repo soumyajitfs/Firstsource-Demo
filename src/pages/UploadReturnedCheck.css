@@ -594,6 +594,15 @@
   max-width: 1100px;
 }
 
+/* Stop Payment flow: highlight entire card based on address match status */
+.address-matrix-card.address-match {
+  border-left: 6px solid #10b981;
+}
+
+.address-matrix-card.address-mismatch {
+  border-left: 6px solid #ef4444;
+}
+
 .address-matrix-header {
   display: flex;
   flex-direction: column;
@@ -641,6 +650,18 @@
 
 .address-value-cell {
   color: #0f172a;
+}
+
+/* Stop Payment flow: green / red sidebar effect on each column cell
+   when Letter, CAS, and EHub all match vs differ */
+.address-value-cell.match {
+  border-left: 6px solid #10b981;
+  background: #f0fdf4;
+}
+
+.address-value-cell.mismatch {
+  border-left: 6px solid #ef4444;
+  background: #fef2f2;
 }
 
 .address-actions {

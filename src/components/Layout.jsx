@@ -78,6 +78,12 @@ const Layout = ({ children }) => {
             >
               <span>Stop Payment</span>
             </Link>
+          <Link
+            to="/cash-posting"
+            className={`sidebar-item ${isActive('/cash-posting') ? 'active' : ''}`}
+          >
+            <span>Cash Posting</span>
+          </Link>
           </div>
         </aside>
 
