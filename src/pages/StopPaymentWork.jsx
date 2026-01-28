@@ -3,32 +3,32 @@ import { useNavigate } from 'react-router-dom'
 import './MyWork.css'
 import { mockReturnedChecks } from '../data/mockData'
 
-const MyWork = () => {
+const StopPaymentWork = () => {
   const navigate = useNavigate()
   const [filter, setFilter] = useState('all')
   const [checks] = useState(mockReturnedChecks)
 
-  const filteredChecks = filter === 'all' 
-    ? checks 
+  const filteredChecks = filter === 'all'
+    ? checks
     : checks.filter(check => check.status === filter)
 
   const getStatusBadge = (status) => {
     const statusConfig = {
-      'inProgress': { class: 'status-pending', label: 'In Progress' },
-      'received': { class: 'status-extracted', label: 'Received' }
+      inProgress: { class: 'status-pending', label: 'In Progress' },
+      received: { class: 'status-extracted', label: 'Received' }
     }
-    const config = statusConfig[status] || statusConfig['received']
+    const config = statusConfig[status] || statusConfig.received
     return <span className={`status-badge ${config.class}`}>{config.label}</span>
   }
 
   const handlePrecheck = (checkId) => {
-    navigate(`/upload?checkId=${checkId}`)
+    navigate(`/stop-payment/upload?checkId=${checkId}`)
   }
 
   return (
     <div className="my-work">
       <div className="breadcrumbs">
-        <span>Return Check</span>
+        <span>Stop Payment</span>
         <span className="separator">/</span>
         <span>Fetch items from claim recovery tool</span>
       </div>
@@ -36,19 +36,19 @@ const MyWork = () => {
       <div className="page-header">
         <h2>Fetch items from claim recovery tool</h2>
         <div className="filter-tabs">
-          <button 
+          <button
             className={filter === 'all' ? 'active' : ''}
             onClick={() => setFilter('all')}
           >
             All ({checks.length})
           </button>
-          <button 
+          <button
             className={filter === 'inProgress' ? 'active' : ''}
             onClick={() => setFilter('inProgress')}
           >
             In Progress ({checks.filter(c => c.status === 'inProgress').length})
           </button>
-          <button 
+          <button
             className={filter === 'received' ? 'active' : ''}
             onClick={() => setFilter('received')}
           >
@@ -61,7 +61,9 @@ const MyWork = () => {
         <div className="inbox-header">
           <h3>Fetch items from claim recovery tool</h3>
           <p className="inbox-summary">
-            {filteredChecks.length} {filter === 'all' ? 'total' : filter} check{filteredChecks.length !== 1 ? 's' : ''} available
+            {filteredChecks.length}{' '}
+            {filter === 'all' ? 'total' : filter} check
+            {filteredChecks.length !== 1 ? 's' : ''} available
           </p>
         </div>
 
@@ -78,7 +80,6 @@ const MyWork = () => {
             </thead>
             <tbody>
               {filteredChecks.map((check) => {
-                // Format date to DD/MM/YY format
                 const formatDate = (dateString) => {
                   const date = new Date(dateString)
                   const day = String(date.getDate()).padStart(2, '0')
@@ -90,13 +91,11 @@ const MyWork = () => {
                 return (
                   <tr key={check.id}>
                     <td>{check.accountHolder}</td>
-                    <td>
-                      {check.pdfUrl ? 'Yes' : 'No'}
-                    </td>
+                    <td>{check.pdfUrl ? 'Yes' : 'No'}</td>
                     <td>{formatDate(check.receivedDate)}</td>
                     <td>{getStatusBadge(check.status)}</td>
                     <td>
-                      <button 
+                      <button
                         className="action-btn precheck-btn"
                         onClick={() => handlePrecheck(check.id)}
                       >
@@ -114,5 +113,6 @@ const MyWork = () => {
   )
 }
 
-export default MyWork
+export default StopPaymentWork
+
 

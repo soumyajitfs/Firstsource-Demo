@@ -7,7 +7,19 @@ const Layout = ({ children }) => {
   const [searchQuery, setSearchQuery] = useState('')
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false)
 
-  const isActive = (path) => location.pathname === path
+  const isActive = (path) => {
+    // Return Check flow: home, my-work, upload, provider-details
+    if (path === '/') {
+      return (
+        location.pathname === '/' ||
+        location.pathname.startsWith('/my-work') ||
+        location.pathname.startsWith('/upload') ||
+        location.pathname.startsWith('/provider-details')
+      )
+    }
+    // Stop Payment flow and others
+    return location.pathname === path || location.pathname.startsWith(`${path}/`)
+  }
 
   const toggleSidebar = () => {
     setSidebarCollapsed(!sidebarCollapsed)
@@ -53,28 +65,18 @@ const Layout = ({ children }) => {
         </button>
         <aside className={`sidebar ${sidebarCollapsed ? 'collapsed' : ''}`}>
           <div className="sidebar-section">
-            <div className="section-title">GENERAL</div>
+            <div className="section-title">PROCESS</div>
             <Link
               to="/"
               className={`sidebar-item ${isActive('/') ? 'active' : ''}`}
             >
-              <span>My Work</span>
-            </Link>
-          </div>
-
-          <div className="sidebar-section">
-            <div className="section-title">PROCESS</div>
-            <Link
-              to="/upload"
-              className={`sidebar-item ${isActive('/upload') ? 'active' : ''}`}
-            >
-              <span>Upload Returned Check</span>
+              <span>Return Check</span>
             </Link>
             <Link
-              to="/analysis"
-              className={`sidebar-item ${isActive('/analysis') ? 'active' : ''}`}
+              to="/stop-payment"
+              className={`sidebar-item ${isActive('/stop-payment') ? 'active' : ''}`}
             >
-              <span>Check Analysis</span>
+              <span>Stop Payment</span>
             </Link>
           </div>
         </aside>

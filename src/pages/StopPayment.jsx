@@ -1,26 +1,26 @@
 import React from 'react'
 import { useNavigate } from 'react-router-dom'
-import './Home.css'
+import './StopPayment.css'
 
-const Home = () => {
+const StopPayment = () => {
   const navigate = useNavigate()
 
   const handleReadFromMailbox = () => {
-    navigate('/my-work')
+    navigate('/stop-payment/work')
   }
 
   return (
-    <div className="home-page">
+    <div className="stop-payment">
       <div className="breadcrumbs">
-        <span>My Work</span>
+        <span>Stop Payment</span>
         <span className="separator">/</span>
         <span>Returned Checks Resolution</span>
       </div>
 
-      <div className="home-content">
+      <div className="stop-payment-content">
         <div className="mailbox-card">
           <div className="mailbox-icon">📬</div>
-          <button 
+          <button
             className="read-mailbox-btn"
             onClick={handleReadFromMailbox}
           >
@@ -35,5 +35,5 @@ const Home = () => {
   )
 }
 
-export default Home
+export default StopPayment
 

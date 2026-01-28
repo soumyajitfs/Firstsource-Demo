@@ -6,7 +6,7 @@ export const mockReturnedChecks = [
     accountHolder: 'Baylor Scott and White Health',
     amount: 24.98,
     returnReason: 'Overpayment by Secondary Payor',
-    receivedDate: '2 hours ago',
+    receivedDate: '2024-12-15', // Date in YYYY-MM-DD format for easy formatting
     status: 'inProgress',
     pdfUrl: '/returned-check.pdf' // First PDF
   },
@@ -17,7 +17,7 @@ export const mockReturnedChecks = [
     accountHolder: 'Auto Finance Solutions LLC',
     amount: 1250.00,
     returnReason: 'Account Closed',
-    receivedDate: '1 day ago',
+    receivedDate: '2024-12-14', // Date in YYYY-MM-DD format for easy formatting
     status: 'received',
     pdfUrl: '/2nd.pdf' // Second PDF - Vehicle related
   }
@@ -31,10 +31,10 @@ export const mockExtractedData = {
   givenAddress: '2401 N Stemmons Fwy, Suite 200, DALLAS, TX 75207', // Payment Made To address
   dateOfService: '04/29/2025', // Date(s) of Service from PDF
   typeOfService: 'OUTPT HSP (Outpatient Hospital)', // Type of Service from PDF
-  providerName: 'SCOTT & WHITE HOSPITAL - ROUND ROCK', // Payment Made To provider name from PDF
+  providerName: 'Baylor Scott & WHITE Health', // Payment Made To provider name from PDF
   patientAccountNumber: 'ACC-779545685', // Patient Account Number from PDF (using vendor number format)
   background: 'Outpatient Hospital Service - Medicare claim processed through NOVITAS SOLUTIONS (Medicare A). Service date: 04/29/2025. Billed charge: $325.00, Medicare approved: $122.89, Our payment: $24.98. Payment method: Automated Clearing House.',
-  complaintDescription: 'Explanation of Benefits for OUTPT HSP (Outpatient Hospital) service. Claim processed with Medicare adjustments. Billed Amount: $325.00, Allowed Amount: $325.00, Co-Insurance: $24.21, Other Adjustments: $203.59 and $1.24, Benefit Amount: $94.85.',
+  complaintDescription: 'Explanation of Benefits for OUTPT HSP (Outpatient Hospital) service. Claim processed with Medicare adjustments. Billed Amount: $325.00, Allowed Amount: $325.00, Co-Insurance: $24.21, Other Adjustments: $203.59 and Benefit Amount: $94.85.',
   financialImpactOnBuyer: '$24.21', // Patient Responsibility/Co-Insurance from PDF (General Claim Adjustments shows Patient Responsibility: 24.21)
   confidence: {
     claimNumber: 0.98,

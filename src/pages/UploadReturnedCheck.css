@@ -155,14 +155,19 @@
   display: flex;
   flex-direction: column;
   gap: 25px;
+  align-items: stretch;
+  justify-content: flex-start;
+  max-width: 1400px; /* limit width so cards fill space and reduce empty area */
+  margin: 0 auto;    /* center the whole comparison content */
+  flex: 1;           /* allow section to grow and fill vertical space */
 }
 
 .comparison-grid {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  grid-template-rows: 1fr 1fr;
-  gap: 20px;
   width: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: stretch;  /* make left/right cards equal height */
+  gap: 24px;             /* space between the two panels */
 }
 
 .comparison-panel {
@@ -173,6 +178,8 @@
   display: flex;
   flex-direction: column;
   box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
+  flex: 1;                /* both cards share available width */
+  min-height: 100%;       /* stretch to same height within row */
 }
 
 .comparison-panel-header {
@@ -207,6 +214,7 @@
   display: flex;
   flex-direction: column;
   gap: 12px;
+  flex: 1; /* let fields area expand so card fills vertical space */
 }
 
 .comparison-field {
@@ -252,12 +260,16 @@
   background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
   border-radius: 12px;
   border: 2px solid #e2e8f0;
+  width: 100%;
+  max-width: 1100px;
+  margin: 0 auto;
 }
 
 .cant-do-dropdown-container {
   display: flex;
   flex-direction: column;
   gap: 8px;
+  width: 100%;
 }
 
 .cant-do-label {
@@ -275,6 +287,7 @@
   color: #1e293b;
   cursor: pointer;
   transition: all 0.3s ease;
+  width: 100%;
 }
 
 .cant-do-dropdown:hover {
@@ -298,6 +311,7 @@
   cursor: pointer;
   transition: all 0.3s ease;
   box-shadow: 0 4px 16px rgba(239, 68, 68, 0.3);
+  width: 100%;
 }
 
 .cant-do-btn:hover:not(:disabled) {
@@ -350,6 +364,7 @@
   transition: all 0.3s ease;
   box-shadow: 0 4px 16px rgba(239, 68, 68, 0.3);
   white-space: nowrap;
+  width: 100%;
 }
 
 .reissue-btn:hover:not(:disabled) {
@@ -558,6 +573,94 @@
 .radio-option input[type="radio"]:checked + .radio-label {
   color: #10b981;
   font-weight: 600;
+}
+
+.radio-option-disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.radio-option-disabled input[type="radio"] {
+  cursor: not-allowed;
+}
+
+.address-matrix-card {
+  background: #ffffff;
+  border-radius: 14px;
+  border: 1px solid #e2e8f0;
+  padding: 22px 24px;
+  box-shadow: 0 10px 30px rgba(15, 23, 42, 0.08);
+  width: 100%;
+  max-width: 1100px;
+}
+
+.address-matrix-header {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  margin-bottom: 10px;
+}
+
+.address-matrix-header h4 {
+  margin: 0;
+  font-size: 18px;
+  font-weight: 600;
+  color: #0f172a;
+}
+
+.address-matrix-subtitle {
+  font-size: 12px;
+  color: #64748b;
+}
+
+.address-matrix-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 6px;
+}
+
+.address-matrix-table th,
+.address-matrix-table td {
+  border: 1px solid #e2e8f0;
+  padding: 12px 12px;
+  font-size: 14px;
+}
+
+.address-matrix-table th {
+  background: #f8fafc;
+  text-align: left;
+  font-weight: 600;
+  color: #475569;
+}
+
+.address-label-cell {
+  font-weight: 600;
+  color: #334155;
+  width: 130px;
+}
+
+.address-value-cell {
+  color: #0f172a;
+}
+
+.address-actions {
+  margin-top: 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.address-choice {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px;
+}
+
+.address-choice-label {
+  font-size: 13px;
+  font-weight: 600;
+  color: #334155;
 }
 
 .form-field {
@@ -1125,4 +1228,103 @@
   background: linear-gradient(135deg, #b91c1c 0%, #991b1b 100%);
   transform: translateY(-2px);
   box-shadow: 0 6px 24px rgba(220, 38, 38, 0.4);
+}
+
+/* Reissue Check Modal */
+.reissue-modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(15, 23, 42, 0.7);
+  backdrop-filter: blur(4px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  animation: fadeIn 0.3s ease;
+}
+
+.reissue-modal {
+  background: linear-gradient(135deg, #ffffff 0%, #f8fafc 100%);
+  border-radius: 20px;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3), 0 8px 24px rgba(0, 0, 0, 0.2);
+  width: 520px;
+  max-width: 90%;
+  overflow: hidden;
+  border: 1px solid #e2e8f0;
+  animation: slideUp 0.3s ease;
+}
+
+.reissue-modal-header {
+  background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+  color: white;
+  padding: 25px 30px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
+}
+
+.reissue-modal-header h3 {
+  font-size: 20px;
+  font-weight: 700;
+  margin: 0;
+  letter-spacing: -0.3px;
+}
+
+.reissue-modal-content {
+  padding: 35px;
+}
+
+.bot-trigger-message {
+  text-align: center;
+  margin-bottom: 35px;
+  padding: 30px 25px;
+  background: linear-gradient(135deg, #dbeafe 0%, #bfdbfe 100%);
+  border-radius: 12px;
+  border: 2px solid #3b82f6;
+}
+
+.bot-icon {
+  font-size: 48px;
+  margin-bottom: 20px;
+  animation: pulse 2s ease-in-out infinite;
+}
+
+@keyframes pulse {
+  0%, 100% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.1);
+  }
+}
+
+.bot-trigger-text {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.bot-trigger-label {
+  font-size: 22px;
+  font-weight: 700;
+  color: #1e40af;
+  letter-spacing: -0.3px;
+}
+
+.bot-trigger-description {
+  font-size: 15px;
+  color: #1e3a8a;
+  line-height: 1.6;
+  margin: 0;
+  font-weight: 500;
+}
+
+.reissue-modal-actions {
+  display: flex;
+  gap: 15px;
+  justify-content: flex-end;
 }

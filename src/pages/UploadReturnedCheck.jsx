@@ -7,13 +7,14 @@ const UploadReturnedCheck = () => {
   const navigate = useNavigate()
   const [searchParams] = useSearchParams()
   const checkId = searchParams.get('checkId')
+  const mode = searchParams.get('mode')
   
   // Find the check from mock data to get the correct PDF URL
   const selectedCheck = mockReturnedChecks.find(check => check.id === checkId) || mockReturnedChecks[0]
   const basePdfUrl = selectedCheck.pdfUrl || '/returned-check.pdf'
   // Set default zoom to 100% using PDF viewer parameter
   const pdfUrl = `${basePdfUrl}#zoom=100`
-  const [step, setStep] = useState('initial') // initial, extracted, addressComparison, verified
+  const [step, setStep] = useState(mode === 'compare' ? 'addressComparison' : 'initial') // initial, extracted, addressComparison, verified
   // Use different extracted data based on which check is selected
   const initialExtractedData = selectedCheck.id === 'CHK002' ? mockExtractedDataCHK002 : mockExtractedData
   const [extractedData, setExtractedData] = useState(initialExtractedData)
@@ -21,8 +22,11 @@ const UploadReturnedCheck = () => {
   const [isExtracting, setIsExtracting] = useState(false)
   const [isVerifying, setIsVerifying] = useState(false)
   const [isCreatingCase, setIsCreatingCase] = useState(false)
-  const [returnCheckType, setReturnCheckType] = useState('') // 'Postal' or 'Non-Postal'
+  const [showReissueModal, setShowReissueModal] = useState(false)
   const [cantDoReason, setCantDoReason] = useState('') // Reason for CANT DO
+  const [addressSource, setAddressSource] = useState('CAS') // CAS or EHub
+  const [addressNotes, setAddressNotes] = useState('')
+  const [returnCheckType, setReturnCheckType] = useState('postal') // POSTAL or NON-POSTAL
   const [caseFormData, setCaseFormData] = useState({
     source: 'Customer',
     dateOfReceipt: new Date().toLocaleDateString('en-US', { month: 'numeric', day: 'numeric', year: 'numeric' }),
@@ -38,6 +42,13 @@ const UploadReturnedCheck = () => {
     const newExtractedData = currentCheck.id === 'CHK002' ? mockExtractedDataCHK002 : mockExtractedData
     setExtractedData(newExtractedData)
   }, [checkId])
+
+  // If user lands directly on compare mode, ensure we show comparison step
+  useEffect(() => {
+    if (mode === 'compare') {
+      setStep('addressComparison')
+    }
+  }, [mode])
 
   // Update account number when extracted data changes
   useEffect(() => {
@@ -181,6 +192,25 @@ const UploadReturnedCheck = () => {
       }
     }
 
+    // Build EHub address – for CHK001 it matches, for CHK002 it is different
+    const eHubAddress = selectedCheck.id === 'CHK002'
+      ? {
+          name: extractedData.nameAsPerLetter,
+          addressLine1: '1500 Commerce Street',
+          addressLine2: 'Floor 5',
+          city: 'FORT WORTH',
+          state: 'TX',
+          zip: '76102'
+        }
+      : {
+          name: extractedData.nameAsPerLetter,
+          addressLine1: parsedAddress.addressLine1,
+          addressLine2: parsedAddress.addressLine2,
+          city: parsedAddress.city,
+          state: parsedAddress.state,
+          zip: parsedAddress.zip
+        }
+
     // Check Details comparison
     const checkDetails = {
       claimNumber: {
@@ -236,7 +266,7 @@ const UploadReturnedCheck = () => {
       }
     }
 
-    return { customerDetails, checkDetails }
+    return { customerDetails, checkDetails, eHubAddress }
   }
 
   const comparison = compareAllFields()
@@ -246,19 +276,14 @@ const UploadReturnedCheck = () => {
     : Object.values(comparison.customerDetails).every(field => field.match)
   const allCheckFieldsMatch = Object.values(comparison.checkDetails).every(field => field.match)
   const allFieldsMatch = allCustomerFieldsMatch && allCheckFieldsMatch
-  // For CHK002, show CAN DO button when on comparison page
-  const showCanDoForCHK002 = selectedCheck.id === 'CHK002' && step === 'addressComparison'
 
   const handleVerifyAries = () => {
-    if (!returnCheckType) {
-      alert('Please select a Return Check Type before verifying')
-      return
-    }
+    // Return Check flow: go directly to comparison (no Provider Details page)
     setIsVerifying(true)
     setTimeout(() => {
       setIsVerifying(false)
-      setStep('addressComparison') // New step for address comparison
-    }, 2000) // Show loading indicator for 2 seconds
+      setStep('addressComparison')
+    }, 2000)
   }
 
   const handleCantDo = () => {
@@ -278,8 +303,12 @@ const UploadReturnedCheck = () => {
   }
 
   const handleReissueCheck = () => {
-    // Handle reissue check and resend email
-    alert('Reissue check and resend email functionality will be implemented')
+    // Show popup modal for bot trigger
+    setShowReissueModal(true)
+  }
+
+  const closeReissueModal = () => {
+    setShowReissueModal(false)
   }
 
   const handleCaseFormChange = (field, value) => {
@@ -433,7 +462,7 @@ const UploadReturnedCheck = () => {
                 </div>
 
                 <div className="form-field">
-                  <label>Patient Account Number</label>
+                  <label>{selectedCheck.id === 'CHK002' ? 'Vehicle Identification Number' : 'Patient Account Number'}</label>
                   <input
                     type="text"
                     value={extractedData.patientAccountNumber || ''}
@@ -468,14 +497,15 @@ const UploadReturnedCheck = () => {
                 </div>
 
                 <div className="form-field">
-                  <label>Financial Impact on the Buyer</label>
+                  <label>Check Value</label>
                   <input
                     type="text"
-                    value={extractedData.financialImpactOnBuyer || ''}
-                    onChange={(e) => handleFieldChange('financialImpactOnBuyer', e.target.value)}
+                      value={extractedData.financialImpactOnBuyer || ''}
+                      onChange={(e) => handleFieldChange('financialImpactOnBuyer', e.target.value)}
                   />
                 </div>
 
+                {/* Return Check Type - only for Return Check flow */}
                 <div className="form-field">
                   <label>Return Check Type</label>
                   <div className="radio-group">
@@ -483,30 +513,31 @@ const UploadReturnedCheck = () => {
                       <input
                         type="radio"
                         name="returnCheckType"
-                        value="Postal"
-                        checked={returnCheckType === 'Postal'}
+                        value="postal"
+                        checked={returnCheckType === 'postal'}
                         onChange={(e) => setReturnCheckType(e.target.value)}
                       />
-                      <span className="radio-label">Postal</span>
+                      <span className="radio-label">POSTAL</span>
                     </label>
                     <label className="radio-option">
                       <input
                         type="radio"
                         name="returnCheckType"
-                        value="Non-Postal"
-                        checked={returnCheckType === 'Non-Postal'}
+                        value="non-postal"
+                        checked={returnCheckType === 'non-postal'}
                         onChange={(e) => setReturnCheckType(e.target.value)}
                       />
-                      <span className="radio-label">Non-Postal</span>
+                      <span className="radio-label">NON-POSTAL</span>
                     </label>
                   </div>
                 </div>
+
               </div>
 
               <button
                 className="verify-btn"
                 onClick={handleVerifyAries}
-                disabled={isVerifying || !returnCheckType}
+                disabled={isVerifying}
               >
                 {isVerifying ? (
                   <span className="verify-btn-content">
@@ -522,184 +553,325 @@ const UploadReturnedCheck = () => {
 
           {step === 'addressComparison' && (
             <div className="comparison-section">
+              {/* Customer Details panels */}
               <div className="comparison-grid">
-                {/* Customer Details from Complaint Letter */}
                 <div className="comparison-panel">
                   <div className="comparison-panel-header complaint-header">
-                    <span className="panel-icon">📧</span>
+                    <span className="panel-icon">📄</span>
                     <h5>Customer Details from Complaint Letter</h5>
                   </div>
                   <div className="comparison-fields">
-                    <div className={`comparison-field ${comparison.customerDetails.customerName.match ? 'field-match' : 'field-mismatch'}`}>
-                      <span className="field-label">Customer Name:</span>
-                      <span className="field-value">{comparison.customerDetails.customerName.fromDocument}</span>
+                    <div
+                      className={`comparison-field ${
+                        comparison.customerDetails.customerName.match ? 'field-match' : 'field-mismatch'
+                      }`}
+                    >
+                      <span className="field-label">Customer Name</span>
+                      <span className="field-value">
+                        {comparison.customerDetails.customerName.fromDocument}
+                      </span>
                     </div>
-                    <div className={`comparison-field ${comparison.customerDetails.emailAddress.match ? 'field-match' : 'field-mismatch'}`}>
-                      <span className="field-label">Email Address:</span>
-                      <span className="field-value">{comparison.customerDetails.emailAddress.fromDocument}</span>
+                    <div
+                      className={`comparison-field ${
+                        comparison.customerDetails.emailAddress.match ? 'field-match' : 'field-mismatch'
+                      }`}
+                    >
+                      <span className="field-label">Email Address</span>
+                      <span className="field-value">
+                        {comparison.customerDetails.emailAddress.fromDocument}
+                      </span>
                     </div>
-                    <div className={`comparison-field ${comparison.customerDetails.dateOfBirth.match ? 'field-match' : 'field-mismatch'}`}>
-                      <span className="field-label">Date of Birth:</span>
-                      <span className="field-value">{comparison.customerDetails.dateOfBirth.fromDocument}</span>
+                    <div className="comparison-field field-match">
+                      <span className="field-label">Date of Birth</span>
+                      <span className="field-value">
+                        {comparison.customerDetails.dateOfBirth.fromDocument}
+                      </span>
                     </div>
-                    <div className={`comparison-field ${comparison.customerDetails.telephoneNumber.match ? 'field-match' : 'field-mismatch'}`}>
-                      <span className="field-label">Telephone Number:</span>
-                      <span className="field-value">{comparison.customerDetails.telephoneNumber.fromDocument}</span>
+                    <div className="comparison-field field-match">
+                      <span className="field-label">Telephone Number</span>
+                      <span className="field-value">
+                        {comparison.customerDetails.telephoneNumber.fromDocument}
+                      </span>
                     </div>
-                    <div className={`comparison-field ${comparison.customerDetails.address.match ? 'field-match' : 'field-mismatch'}`}>
-                      <span className="field-label">Address:</span>
-                      <span className="field-value">{comparison.customerDetails.address.fromDocument || 'N/A'}</span>
+                    <div
+                      className={`comparison-field ${
+                        comparison.customerDetails.address.match ? 'field-match' : 'field-mismatch'
+                      }`}
+                    >
+                      <span className="field-label">Address</span>
+                      <span className="field-value">
+                        {comparison.customerDetails.address.fromDocument}
+                      </span>
                     </div>
-                    <div className={`comparison-field ${comparison.customerDetails.addressLine2.match ? 'field-match' : 'field-mismatch'}`}>
-                      <span className="field-label">Address 2:</span>
-                      <span className="field-value">{comparison.customerDetails.addressLine2.fromDocument || 'N/A'}</span>
+                    <div
+                      className={`comparison-field ${
+                        comparison.customerDetails.addressLine2.match ? 'field-match' : 'field-mismatch'
+                      }`}
+                    >
+                      <span className="field-label">Address 2</span>
+                      <span className="field-value">
+                        {comparison.customerDetails.addressLine2.fromDocument}
+                      </span>
                     </div>
-                    <div className={`comparison-field ${comparison.customerDetails.city.match ? 'field-match' : 'field-mismatch'}`}>
-                      <span className="field-label">City:</span>
-                      <span className="field-value">{comparison.customerDetails.city.fromDocument || 'N/A'}</span>
+                    <div
+                      className={`comparison-field ${
+                        comparison.customerDetails.city.match ? 'field-match' : 'field-mismatch'
+                      }`}
+                    >
+                      <span className="field-label">City</span>
+                      <span className="field-value">
+                        {comparison.customerDetails.city.fromDocument}
+                      </span>
                     </div>
-                    <div className={`comparison-field ${comparison.customerDetails.state.match ? 'field-match' : 'field-mismatch'}`}>
-                      <span className="field-label">State:</span>
-                      <span className="field-value">{comparison.customerDetails.state.fromDocument || 'N/A'}</span>
+                    <div
+                      className={`comparison-field ${
+                        comparison.customerDetails.state.match ? 'field-match' : 'field-mismatch'
+                      }`}
+                    >
+                      <span className="field-label">State</span>
+                      <span className="field-value">
+                        {comparison.customerDetails.state.fromDocument}
+                      </span>
                     </div>
-                    <div className={`comparison-field ${comparison.customerDetails.zipCode.match ? 'field-match' : 'field-mismatch'}`}>
-                      <span className="field-label">Zip Code:</span>
-                      <span className="field-value">{comparison.customerDetails.zipCode.fromDocument || 'N/A'}</span>
+                    <div
+                      className={`comparison-field ${
+                        comparison.customerDetails.zipCode.match ? 'field-match' : 'field-mismatch'
+                      }`}
+                    >
+                      <span className="field-label">Zip Code</span>
+                      <span className="field-value">
+                        {comparison.customerDetails.zipCode.fromDocument}
+                      </span>
                     </div>
                   </div>
                 </div>
 
-                {/* Customer Details from Aries */}
                 <div className="comparison-panel">
                   <div className="comparison-panel-header aries-header">
                     <span className="panel-icon">🖥️</span>
-                    <h5>Customer Details from Aries</h5>
+                    <h5>Customer Details from CAS</h5>
                   </div>
                   <div className="comparison-fields">
-                    <div className={`comparison-field ${comparison.customerDetails.customerName.match ? 'field-match' : 'field-mismatch'}`}>
-                      <span className="field-label">Customer Name:</span>
-                      <span className="field-value">{comparison.customerDetails.customerName.fromAries}</span>
+                    <div
+                      className={`comparison-field ${
+                        comparison.customerDetails.customerName.match ? 'field-match' : 'field-mismatch'
+                      }`}
+                    >
+                      <span className="field-label">Customer Name</span>
+                      <span className="field-value">
+                        {comparison.customerDetails.customerName.fromAries}
+                      </span>
                     </div>
-                    <div className={`comparison-field ${comparison.customerDetails.emailAddress.match ? 'field-match' : 'field-mismatch'}`}>
-                      <span className="field-label">Email Address:</span>
-                      <span className="field-value">{comparison.customerDetails.emailAddress.fromAries}</span>
+                    <div
+                      className={`comparison-field ${
+                        comparison.customerDetails.emailAddress.match ? 'field-match' : 'field-mismatch'
+                      }`}
+                    >
+                      <span className="field-label">Email Address</span>
+                      <span className="field-value">
+                        {comparison.customerDetails.emailAddress.fromAries}
+                      </span>
                     </div>
-                    <div className={`comparison-field ${comparison.customerDetails.dateOfBirth.match ? 'field-match' : 'field-mismatch'}`}>
-                      <span className="field-label">Date of Birth:</span>
-                      <span className="field-value">{comparison.customerDetails.dateOfBirth.fromAries}</span>
+                    <div className="comparison-field field-match">
+                      <span className="field-label">Date of Birth</span>
+                      <span className="field-value">
+                        {comparison.customerDetails.dateOfBirth.fromAries}
+                      </span>
                     </div>
-                    <div className={`comparison-field ${comparison.customerDetails.telephoneNumber.match ? 'field-match' : 'field-mismatch'}`}>
-                      <span className="field-label">Telephone Number:</span>
-                      <span className="field-value">{comparison.customerDetails.telephoneNumber.fromAries}</span>
+                    <div className="comparison-field field-match">
+                      <span className="field-label">Telephone Number</span>
+                      <span className="field-value">
+                        {comparison.customerDetails.telephoneNumber.fromAries}
+                      </span>
                     </div>
-                    <div className={`comparison-field ${comparison.customerDetails.address.match ? 'field-match' : 'field-mismatch'}`}>
-                      <span className="field-label">Address:</span>
-                      <span className="field-value">{comparison.customerDetails.address.fromAries || 'N/A'}</span>
+                    <div
+                      className={`comparison-field ${
+                        comparison.customerDetails.address.match ? 'field-match' : 'field-mismatch'
+                      }`}
+                    >
+                      <span className="field-label">Address</span>
+                      <span className="field-value">
+                        {comparison.customerDetails.address.fromAries}
+                      </span>
                     </div>
-                    <div className={`comparison-field ${comparison.customerDetails.addressLine2.match ? 'field-match' : 'field-mismatch'}`}>
-                      <span className="field-label">Address 2:</span>
-                      <span className="field-value">{comparison.customerDetails.addressLine2.fromAries || 'N/A'}</span>
+                    <div
+                      className={`comparison-field ${
+                        comparison.customerDetails.addressLine2.match ? 'field-match' : 'field-mismatch'
+                      }`}
+                    >
+                      <span className="field-label">Address 2</span>
+                      <span className="field-value">
+                        {comparison.customerDetails.addressLine2.fromAries}
+                      </span>
                     </div>
-                    <div className={`comparison-field ${comparison.customerDetails.city.match ? 'field-match' : 'field-mismatch'}`}>
-                      <span className="field-label">City:</span>
-                      <span className="field-value">{comparison.customerDetails.city.fromAries || 'N/A'}</span>
+                    <div
+                      className={`comparison-field ${
+                        comparison.customerDetails.city.match ? 'field-match' : 'field-mismatch'
+                      }`}
+                    >
+                      <span className="field-label">City</span>
+                      <span className="field-value">
+                        {comparison.customerDetails.city.fromAries}
+                      </span>
                     </div>
-                    <div className={`comparison-field ${comparison.customerDetails.state.match ? 'field-match' : 'field-mismatch'}`}>
-                      <span className="field-label">State:</span>
-                      <span className="field-value">{comparison.customerDetails.state.fromAries || 'N/A'}</span>
+                    <div
+                      className={`comparison-field ${
+                        comparison.customerDetails.state.match ? 'field-match' : 'field-mismatch'
+                      }`}
+                    >
+                      <span className="field-label">State</span>
+                      <span className="field-value">
+                        {comparison.customerDetails.state.fromAries}
+                      </span>
                     </div>
-                    <div className={`comparison-field ${comparison.customerDetails.zipCode.match ? 'field-match' : 'field-mismatch'}`}>
-                      <span className="field-label">Zip Code:</span>
-                      <span className="field-value">{comparison.customerDetails.zipCode.fromAries || 'N/A'}</span>
+                    <div
+                      className={`comparison-field ${
+                        comparison.customerDetails.zipCode.match ? 'field-match' : 'field-mismatch'
+                      }`}
+                    >
+                      <span className="field-label">Zip Code</span>
+                      <span className="field-value">
+                        {comparison.customerDetails.zipCode.fromAries}
+                      </span>
                     </div>
                   </div>
                 </div>
+              </div>
 
-                {/* Check Details from Complaint Letter */}
+              {/* Check Details panels */}
+              <div className="comparison-grid" style={{ marginTop: '24px' }}>
                 <div className="comparison-panel">
                   <div className="comparison-panel-header complaint-header">
-                    <span className="panel-icon">📧</span>
+                    <span className="panel-icon">📄</span>
                     <h5>Check Details from Complaint Letter</h5>
                   </div>
                   <div className="comparison-fields">
-                    <div className={`comparison-field ${comparison.checkDetails.claimNumber.match ? 'field-match' : 'field-mismatch'}`}>
-                      <span className="field-label">Claim Number:</span>
-                      <span className="field-value">{comparison.checkDetails.claimNumber.fromDocument}</span>
+                    <div className="comparison-field field-match">
+                      <span className="field-label">Claim Number</span>
+                      <span className="field-value">
+                        {comparison.checkDetails.claimNumber.fromDocument}
+                      </span>
                     </div>
-                    <div className={`comparison-field ${comparison.checkDetails.checkNumber.match ? 'field-match' : 'field-mismatch'}`}>
-                      <span className="field-label">Check Number:</span>
-                      <span className="field-value">{comparison.checkDetails.checkNumber.fromDocument}</span>
+                    <div
+                      className={`comparison-field ${
+                        comparison.checkDetails.checkNumber.match ? 'field-match' : 'field-mismatch'
+                      }`}
+                    >
+                      <span className="field-label">Check Number</span>
+                      <span className="field-value">
+                        {comparison.checkDetails.checkNumber.fromDocument}
+                      </span>
                     </div>
-                    <div className={`comparison-field ${comparison.checkDetails.medicalRecordNumber.match ? 'field-match' : 'field-mismatch'}`}>
-                      <span className="field-label">Medical Record Number:</span>
-                      <span className="field-value">{comparison.checkDetails.medicalRecordNumber.fromDocument}</span>
+                    <div className="comparison-field field-match">
+                      <span className="field-label">
+                        {selectedCheck.id === 'CHK002'
+                          ? 'Vehicle Identification Number'
+                          : 'Medical Record Number'}
+                      </span>
+                      <span className="field-value">
+                        {comparison.checkDetails.medicalRecordNumber.fromDocument}
+                      </span>
                     </div>
-                    <div className={`comparison-field ${comparison.checkDetails.providerId.match ? 'field-match' : 'field-mismatch'}`}>
-                      <span className="field-label">Provider ID:</span>
-                      <span className="field-value">{comparison.checkDetails.providerId.fromDocument}</span>
+                    <div className="comparison-field field-match">
+                      <span className="field-label">Provider ID</span>
+                      <span className="field-value">
+                        {comparison.checkDetails.providerId.fromDocument}
+                      </span>
                     </div>
-                    <div className={`comparison-field ${comparison.checkDetails.policyNumber.match ? 'field-match' : 'field-mismatch'}`}>
-                      <span className="field-label">Agreement Policy Number:</span>
-                      <span className="field-value">{comparison.checkDetails.policyNumber.fromDocument}</span>
+                    <div className="comparison-field field-match">
+                      <span className="field-label">Agreement Policy Number</span>
+                      <span className="field-value">
+                        {comparison.checkDetails.policyNumber.fromDocument}
+                      </span>
                     </div>
-                    <div className={`comparison-field ${comparison.checkDetails.providerName.match ? 'field-match' : 'field-mismatch'}`}>
-                      <span className="field-label">Name of Provider:</span>
-                      <span className="field-value">{comparison.checkDetails.providerName.fromDocument}</span>
+                    <div className="comparison-field field-match">
+                      <span className="field-label">Name of Provider</span>
+                      <span className="field-value">
+                        {comparison.checkDetails.providerName.fromDocument}
+                      </span>
                     </div>
-                    <div className={`comparison-field ${comparison.checkDetails.serviceCode.match ? 'field-match' : 'field-mismatch'}`}>
-                      <span className="field-label">Service Type:</span>
-                      <span className="field-value">{comparison.checkDetails.serviceCode.fromDocument}</span>
+                    <div className="comparison-field field-match">
+                      <span className="field-label">Service Type</span>
+                      <span className="field-value">
+                        {comparison.checkDetails.typeOfService.fromDocument}
+                      </span>
                     </div>
-                    <div className={`comparison-field ${comparison.checkDetails.dateOfService.match ? 'field-match' : 'field-mismatch'}`}>
-                      <span className="field-label">Date of Service:</span>
-                      <span className="field-value">{comparison.checkDetails.dateOfService.fromDocument}</span>
+                    <div className="comparison-field field-match">
+                      <span className="field-label">Date of Service</span>
+                      <span className="field-value">
+                        {comparison.checkDetails.dateOfService.fromDocument}
+                      </span>
                     </div>
                   </div>
                 </div>
 
-                {/* Check Details from Aries */}
                 <div className="comparison-panel">
                   <div className="comparison-panel-header aries-header">
                     <span className="panel-icon">🖥️</span>
                     <h5>Check Details from Aries</h5>
                   </div>
                   <div className="comparison-fields">
-                    <div className={`comparison-field ${comparison.checkDetails.claimNumber.match ? 'field-match' : 'field-mismatch'}`}>
-                      <span className="field-label">Claim Number:</span>
-                      <span className="field-value">{comparison.checkDetails.claimNumber.fromAries}</span>
+                    <div className="comparison-field field-match">
+                      <span className="field-label">Claim Number</span>
+                      <span className="field-value">
+                        {comparison.checkDetails.claimNumber.fromAries}
+                      </span>
                     </div>
-                    <div className={`comparison-field ${comparison.checkDetails.checkNumber.match ? 'field-match' : 'field-mismatch'}`}>
-                      <span className="field-label">Check Number:</span>
-                      <span className="field-value">{comparison.checkDetails.checkNumber.fromAries}</span>
+                    <div
+                      className={`comparison-field ${
+                        comparison.checkDetails.checkNumber.match ? 'field-match' : 'field-mismatch'
+                      }`}
+                    >
+                      <span className="field-label">Check Number</span>
+                      <span className="field-value">
+                        {comparison.checkDetails.checkNumber.fromAries}
+                      </span>
                     </div>
-                    <div className={`comparison-field ${comparison.checkDetails.policyNumber.match ? 'field-match' : 'field-mismatch'}`}>
-                      <span className="field-label">Agreement Policy Number:</span>
-                      <span className="field-value">{comparison.checkDetails.policyNumber.fromAries}</span>
+                    <div className="comparison-field field-match">
+                      <span className="field-label">
+                        {selectedCheck.id === 'CHK002'
+                          ? 'Vehicle Identification Number'
+                          : 'Medical Record Number'}
+                      </span>
+                      <span className="field-value">
+                        {comparison.checkDetails.medicalRecordNumber.fromAries}
+                      </span>
                     </div>
-                    <div className={`comparison-field ${comparison.checkDetails.claimNumber.match ? 'field-match' : 'field-mismatch'}`}>
-                      <span className="field-label">PCP / HP Terms Amount:</span>
-                      <span className="field-value">${selectedCheck.amount.toFixed(2)}</span>
+                    <div className="comparison-field field-match">
+                      <span className="field-label">Provider ID</span>
+                      <span className="field-value">
+                        {comparison.checkDetails.providerId.fromAries}
+                      </span>
                     </div>
-                    <div className={`comparison-field ${comparison.checkDetails.claimNumber.match ? 'field-match' : 'field-mismatch'}`}>
-                      <span className="field-label">Payment History:</span>
-                      <span className="field-value">Last Payment: {customerData.lastPaymentDate}</span>
+                    <div className="comparison-field field-match">
+                      <span className="field-label">Agreement Policy Number</span>
+                      <span className="field-value">
+                        {comparison.checkDetails.policyNumber.fromAries}
+                      </span>
                     </div>
-                    <div className={`comparison-field ${comparison.checkDetails.claimNumber.match ? 'field-match' : 'field-mismatch'}`}>
-                      <span className="field-label">Commission Details:</span>
-                      <span className="field-value">Account Balance: ${customerData.accountBalance.toFixed(2)}</span>
+                    <div className="comparison-field field-match">
+                      <span className="field-label">Provider Name</span>
+                      <span className="field-value">
+                        {comparison.checkDetails.providerName.fromAries}
+                      </span>
                     </div>
-                    <div className={`comparison-field ${comparison.checkDetails.providerName.match ? 'field-match' : 'field-mismatch'}`}>
-                      <span className="field-label">Provider Name:</span>
-                      <span className="field-value">{comparison.checkDetails.providerName.fromAries}</span>
+                    <div className="comparison-field field-match">
+                      <span className="field-label">Service Type</span>
+                      <span className="field-value">
+                        {comparison.checkDetails.typeOfService.fromAries}
+                      </span>
                     </div>
-                    <div className={`comparison-field ${comparison.checkDetails.dateOfService.match ? 'field-match' : 'field-mismatch'}`}>
-                      <span className="field-label">Date of Service:</span>
-                      <span className="field-value">{comparison.checkDetails.dateOfService.fromAries}</span>
+                    <div className="comparison-field field-match">
+                      <span className="field-label">Date of Service</span>
+                      <span className="field-value">
+                        {comparison.checkDetails.dateOfService.fromAries}
+                      </span>
                     </div>
                   </div>
                 </div>
               </div>
 
+              {/* Bottom actions */}
               {allFieldsMatch && selectedCheck.id === 'CHK001' && (
                 <div className="cant-do-section">
                   <div className="cant-do-dropdown-container">
@@ -710,9 +882,13 @@ const UploadReturnedCheck = () => {
                       onChange={(e) => setCantDoReason(e.target.value)}
                     >
                       <option value="">Select a reason...</option>
-                      <option value="No new address found on CAS">No new address found on CAS</option>
+                      <option value="No new address found on CAS">
+                        No new address found on CAS
+                      </option>
                       <option value="FRAUD">FRAUD</option>
-                      <option value="Wrong provider selection">Wrong provider selection</option>
+                      <option value="Wrong provider selection">
+                        Wrong provider selection
+                      </option>
                       <option value="Work related injury">Work related injury</option>
                       <option value="Duplicate payment">Duplicate payment</option>
                     </select>
@@ -727,19 +903,24 @@ const UploadReturnedCheck = () => {
                 </div>
               )}
 
-              {selectedCheck.id === 'CHK002' && step === 'addressComparison' && (
-                <div className="cant-do-section" style={{ display: 'flex', flexDirection: 'row', gap: '15px', alignItems: 'center', justifyContent: 'center', marginTop: '20px' }}>
+              {selectedCheck.id === 'CHK002' && (
+                <div
+                  className="cant-do-section"
+                  style={{ flexDirection: 'row', justifyContent: 'center' }}
+                >
                   <button
                     className="action-btn can-do-btn"
                     onClick={handleCanDo}
+                    style={{ maxWidth: '220px' }}
                   >
                     CAN DO
                   </button>
                   <button
                     className="action-btn reissue-btn"
                     onClick={handleReissueCheck}
+                    style={{ maxWidth: '320px' }}
                   >
-                    Reissue Check and Resend Email
+                    Reissue Check and Resend Letter
                   </button>
                 </div>
               )}
@@ -751,7 +932,7 @@ const UploadReturnedCheck = () => {
               <div className="customer-details-section">
                 <div className="section-header">
                   <span className="section-icon">🖥️</span>
-                  <h4>Customer Details from Aries</h4>
+                  <h4>Customer Details from CAS</h4>
                 </div>
                 <div className="info-display">
                   <div className="info-row">
@@ -887,6 +1068,35 @@ const UploadReturnedCheck = () => {
 
         </div>
       </div>
+
+      {/* Reissue Check Modal */}
+      {showReissueModal && (
+        <div className="reissue-modal-overlay" onClick={closeReissueModal}>
+          <div className="reissue-modal" onClick={(e) => e.stopPropagation()}>
+            <div className="reissue-modal-header">
+              <h3>Bot Triggered</h3>
+              <button className="close-btn" onClick={closeReissueModal}>×</button>
+            </div>
+            <div className="reissue-modal-content">
+              <div className="bot-trigger-message">
+                <div className="bot-icon">🤖</div>
+                <div className="bot-trigger-text">
+                  <span className="bot-trigger-label">Automated Process Initiated</span>
+                  <p className="bot-trigger-description">
+                    The bot has been triggered to process the reissue check and resend letter request. 
+                    The workflow will continue automatically in the background.
+                  </p>
+                </div>
+              </div>
+              <div className="reissue-modal-actions">
+                <button className="action-btn close-action" onClick={closeReissueModal}>
+                  Close
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   )
 }
