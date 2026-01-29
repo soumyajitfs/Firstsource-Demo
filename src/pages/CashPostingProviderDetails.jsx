@@ -61,6 +61,21 @@ const CashPostingProviderDetails = () => {
             <div className="provider-label">Claim Number</div>
             <div className="provider-value">{extractedData.claimNumber}</div>
           </div>
+
+          <div className="provider-field">
+            <div className="provider-label">Provider Name</div>
+            <div className="provider-value">{extractedData.providerName}</div>
+          </div>
+
+          <div className="provider-field">
+            <div className="provider-label">Over Payment Charge</div>
+            <div className="provider-value">{extractedData.overPaymentCharge}</div>
+          </div>
+
+          <div className="provider-field">
+            <div className="provider-label">Recover Number</div>
+            <div className="provider-value">{extractedData.recoverNumber}</div>
+          </div>
         </div>
 
         <div className="provider-actions" style={{ display: 'flex', gap: '15px', justifyContent: 'center' }}>
