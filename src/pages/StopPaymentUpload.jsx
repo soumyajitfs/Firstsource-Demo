@@ -1,7 +1,7 @@
 import React, { useState, useRef, useEffect } from 'react'
 import { useNavigate, useSearchParams } from 'react-router-dom'
 import './UploadReturnedCheck.css'
-import { mockExtractedData, mockExtractedDataCHK002, mockCustomerData, mockReturnedChecks } from '../data/mockData'
+import { mockExtractedDataStopPaymentCHK001, mockExtractedDataStopPaymentCHK002, mockCustomerData, mockReturnedChecks } from '../data/mockData'
 
 const StopPaymentUpload = () => {
   const navigate = useNavigate()
@@ -13,7 +13,7 @@ const StopPaymentUpload = () => {
   const basePdfUrl = selectedCheck.pdfUrl || '/returned-check.pdf'
   const pdfUrl = `${basePdfUrl}#zoom=100`
   const [step, setStep] = useState(mode === 'compare' ? 'addressComparison' : 'initial')
-  const initialExtractedData = selectedCheck.id === 'CHK002' ? mockExtractedDataCHK002 : mockExtractedData
+  const initialExtractedData = selectedCheck.id === 'CHK002' ? mockExtractedDataStopPaymentCHK002 : mockExtractedDataStopPaymentCHK001
   const [extractedData, setExtractedData] = useState(initialExtractedData)
   const [customerData] = useState(mockCustomerData)
   const [isExtracting, setIsExtracting] = useState(false)
@@ -39,7 +39,7 @@ const StopPaymentUpload = () => {
   useEffect(() => {
     const currentCheck = mockReturnedChecks.find(check => check.id === checkId) || mockReturnedChecks[0]
     const newExtractedData =
-      currentCheck.id === 'CHK002' ? mockExtractedDataCHK002 : mockExtractedData
+      currentCheck.id === 'CHK002' ? mockExtractedDataStopPaymentCHK002 : mockExtractedDataStopPaymentCHK001
     setExtractedData(newExtractedData)
   }, [checkId])
 
@@ -516,6 +516,17 @@ const StopPaymentUpload = () => {
                       }
                     />
                   </div>
+                </div>
+
+                <div className="form-field">
+                  <label>Check Date</label>
+                  <input
+                    type="text"
+                    value={extractedData.checkDate || ''}
+                    onChange={(e) =>
+                      handleFieldChange('checkDate', e.target.value)
+                    }
+                  />
                 </div>
 
                 <div className="form-field">

@@ -417,6 +417,15 @@ const UploadReturnedCheck = () => {
                 </div>
 
                 <div className="form-field">
+                  <label>Check Date</label>
+                  <input
+                    type="text"
+                    value={extractedData.checkDate || ''}
+                    onChange={(e) => handleFieldChange('checkDate', e.target.value)}
+                  />
+                </div>
+
+                <div className="form-field">
                   <label>Name as per the Letter</label>
                   <input
                     type="text"
