@@ -291,15 +291,13 @@ const UploadReturnedCheck = () => {
       alert('Please select a reason for CANT DO')
       return
     }
-    // Handle CANT DO action
-    alert(`CANT DO action triggered. Reason: ${cantDoReason}`)
-    // Navigate to next step or show message
+    // Show bot modal for CHK001
+    setShowReissueModal(true)
   }
 
   const handleCanDo = () => {
-    // Handle CAN DO action (no dropdown needed for CHK002)
-    alert('CAN DO action triggered')
-    // Navigate to next step or show message
+    // Show bot modal for CHK002
+    setShowReissueModal(true)
   }
 
   const handleReissueCheck = () => {
@@ -1092,7 +1090,7 @@ const UploadReturnedCheck = () => {
                 <div className="bot-trigger-text">
                   <span className="bot-trigger-label">Automated Process Initiated</span>
                   <p className="bot-trigger-description">
-                    The bot has been triggered to process the reissue check and resend letter request. 
+                    The bot has been triggered to process your request. 
                     The workflow will continue automatically in the background.
                   </p>
                 </div>

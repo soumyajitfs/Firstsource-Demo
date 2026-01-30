@@ -10,7 +10,6 @@ import ProviderDetails from './pages/ProviderDetails'
 import StopPayment from './pages/StopPayment'
 import StopPaymentWork from './pages/StopPaymentWork'
 import StopPaymentUpload from './pages/StopPaymentUpload'
-import StopPaymentProviderDetails from './pages/StopPaymentProviderDetails'
 import CashPosting from './pages/CashPosting'
 import CashPostingWork from './pages/CashPostingWork'
 import CashPostingUpload from './pages/CashPostingUpload'
@@ -31,10 +30,6 @@ function App() {
           <Route path="/stop-payment" element={<StopPayment />} />
           <Route path="/stop-payment/work" element={<StopPaymentWork />} />
           <Route path="/stop-payment/upload" element={<StopPaymentUpload />} />
-          <Route
-            path="/stop-payment/provider-details"
-            element={<StopPaymentProviderDetails />}
-          />
           
           {/* Cash Posting flow (same as Stop Payment but without address comparison page) */}
           <Route path="/cash-posting" element={<CashPosting />} />

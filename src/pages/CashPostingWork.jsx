@@ -30,11 +30,11 @@ const CashPostingWork = () => {
       <div className="breadcrumbs">
         <span>Cash Posting</span>
         <span className="separator">/</span>
-        <span>Fetch items from claim recovery tool</span>
+        <span>Items From EFR</span>
       </div>
 
       <div className="page-header">
-        <h2>Fetch items from claim recovery tool</h2>
+        <h2>Items From EFR</h2>
         <div className="filter-tabs">
           <button
             className={filter === 'all' ? 'active' : ''}
@@ -59,7 +59,7 @@ const CashPostingWork = () => {
 
       <div className="checks-inbox">
         <div className="inbox-header">
-          <h3>Fetch items from claim recovery tool</h3>
+          <h3>Items From EFR</h3>
           <p className="inbox-summary">
             {filteredChecks.length}{' '}
             {filter === 'all' ? 'total' : filter} check
@@ -73,6 +73,7 @@ const CashPostingWork = () => {
               <tr>
                 <th>ID</th>
                 <th>Provider Account</th>
+                <th>Check Number</th>
                 <th>Received Date</th>
                 <th>Status</th>
                 <th>Action</th>
@@ -95,6 +96,7 @@ const CashPostingWork = () => {
                   <tr key={check.id}>
                     <td>{randomId}</td>
                     <td>{check.accountHolder}</td>
+                    <td>{check.checkNumber}</td>
                     <td>{formatDate(check.receivedDate)}</td>
                     <td>{getStatusBadge(check.status)}</td>
                     <td>

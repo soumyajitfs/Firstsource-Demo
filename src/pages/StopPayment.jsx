@@ -24,7 +24,7 @@ const StopPayment = () => {
             className="read-mailbox-btn"
             onClick={handleReadFromMailbox}
           >
-            Read from Returned Checks MailBox
+            Read From Claim Recovery Tool
           </button>
           <p className="mailbox-description">
             Click to view and process returned checks from the mailbox

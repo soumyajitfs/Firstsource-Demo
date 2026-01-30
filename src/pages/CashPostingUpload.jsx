@@ -166,10 +166,10 @@ const CashPostingUpload = () => {
                 </div>
 
                 <div className="form-field">
-                  <label>Payable to</label>
+                  <label>Payable To</label>
                   <input
                     type="text"
-                    value={extractedData.payableTo || ''}
+                    value="Humana"
                     readOnly
                     style={{ backgroundColor: '#f5f5f5', cursor: 'not-allowed' }}
                   />

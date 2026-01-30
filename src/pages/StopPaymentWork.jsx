@@ -72,6 +72,7 @@ const StopPaymentWork = () => {
             <thead>
               <tr>
                 <th>Provider Account</th>
+                <th>Check Number</th>
                 <th>Attachment</th>
                 <th>Received Date</th>
                 <th>Status</th>
@@ -91,6 +92,7 @@ const StopPaymentWork = () => {
                 return (
                   <tr key={check.id}>
                     <td>{check.accountHolder}</td>
+                    <td>{check.checkNumber}</td>
                     <td>{check.pdfUrl ? 'Yes' : 'No'}</td>
                     <td>{formatDate(check.receivedDate)}</td>
                     <td>{getStatusBadge(check.status)}</td>

@@ -66,12 +66,13 @@ const Layout = ({ children }) => {
         <aside className={`sidebar ${sidebarCollapsed ? 'collapsed' : ''}`}>
           <div className="sidebar-section">
             <div className="section-title">PROCESS</div>
-            <Link
+            {/* Return Check menu hidden for now */}
+            {/* <Link
               to="/"
               className={`sidebar-item ${isActive('/') ? 'active' : ''}`}
             >
               <span>Return Check</span>
-            </Link>
+            </Link> */}
             <Link
               to="/stop-payment"
               className={`sidebar-item ${isActive('/stop-payment') ? 'active' : ''}`}

@@ -227,11 +227,11 @@ const StopPaymentUpload = () => {
       selectedCheck.id === 'CHK002'
         ? {
             name: extractedData.nameAsPerLetter,
-            addressLine1: '1500 Commerce Street',
-            addressLine2: 'Floor 5',
-            city: 'FORT WORTH',
+            addressLine1: '200 Main Street',
+            addressLine2: 'Suite 100',
+            city: 'AUSTIN',
             state: 'TX',
-            zip: '76102'
+            zip: '78701'
           }
         : {
             name: extractedData.nameAsPerLetter,
@@ -375,7 +375,7 @@ const StopPaymentUpload = () => {
     setIsVerifying(true)
     setTimeout(() => {
       setIsVerifying(false)
-      navigate(`/stop-payment/provider-details?checkId=${selectedCheck.id}`)
+      navigate(`/stop-payment/upload?checkId=${selectedCheck.id}&mode=compare`)
     }, 2000)
   }
 
@@ -384,7 +384,8 @@ const StopPaymentUpload = () => {
       alert('Please select a reason for CANT DO')
       return
     }
-    alert(`CANT DO action triggered. Reason: ${cantDoReason}`)
+    // Show bot modal for CHK001
+    setShowReissueModal(true)
   }
 
   const handleReissueCheck = () => {
@@ -541,17 +542,6 @@ const StopPaymentUpload = () => {
                 </div>
 
                 <div className="form-field">
-                  <label>Given Address</label>
-                  <input
-                    type="text"
-                    value={extractedData.givenAddress || ''}
-                    onChange={(e) =>
-                      handleFieldChange('givenAddress', e.target.value)
-                    }
-                  />
-                </div>
-
-                <div className="form-field">
                   <label>Date of Service</label>
                   <input
                     type="text"
@@ -574,53 +564,56 @@ const StopPaymentUpload = () => {
                 </div>
 
                 <div className="form-field">
-                  <label>
-                    {selectedCheck.id === 'CHK002'
-                      ? 'Vehicle Identification Number'
-                      : 'Patient Account Number'}
-                  </label>
-                  <input
-                    type="text"
-                    value={extractedData.patientAccountNumber || ''}
-                    onChange={(e) =>
-                      handleFieldChange('patientAccountNumber', e.target.value)
-                    }
-                  />
-                </div>
-
-                <div className="form-field">
-                  <label>Background</label>
-                  <textarea
-                    ref={backgroundTextareaRef}
-                    value={extractedData.background || ''}
-                    onChange={(e) => {
-                      handleFieldChange('background', e.target.value)
-                      autoResizeTextarea(e.target)
-                    }}
-                    onInput={(e) => autoResizeTextarea(e.target)}
-                  />
-                </div>
-
-                <div className="form-field">
-                  <label>Complaint Description</label>
-                  <textarea
-                    ref={complaintTextareaRef}
-                    value={extractedData.complaintDescription || ''}
-                    onChange={(e) => {
-                      handleFieldChange('complaintDescription', e.target.value)
-                      autoResizeTextarea(e.target)
-                    }}
-                    onInput={(e) => autoResizeTextarea(e.target)}
-                  />
-                </div>
-
-                <div className="form-field">
                   <label>Check Value</label>
                   <input
                     type="text"
                     value={extractedData.financialImpactOnBuyer || ''}
                     onChange={(e) =>
                       handleFieldChange('financialImpactOnBuyer', e.target.value)
+                    }
+                  />
+                </div>
+
+                <div className="form-field">
+                  <label>{selectedCheck.id === 'CHK002' ? 'Name' : 'Patient Name'}</label>
+                  <input
+                    type="text"
+                    value={extractedData.patientName || ''}
+                    onChange={(e) =>
+                      handleFieldChange('patientName', e.target.value)
+                    }
+                  />
+                </div>
+
+                <div className="form-field">
+                  <label>Provider Name</label>
+                  <input
+                    type="text"
+                    value={extractedData.providerName || ''}
+                    onChange={(e) =>
+                      handleFieldChange('providerName', e.target.value)
+                    }
+                  />
+                </div>
+
+                <div className="form-field">
+                  <label>Provider Number</label>
+                  <input
+                    type="text"
+                    value={extractedData.providerNumber || ''}
+                    onChange={(e) =>
+                      handleFieldChange('providerNumber', e.target.value)
+                    }
+                  />
+                </div>
+
+                <div className="form-field">
+                  <label>Provider Address</label>
+                  <input
+                    type="text"
+                    value={extractedData.providerAddress || ''}
+                    onChange={(e) =>
+                      handleFieldChange('providerAddress', e.target.value)
                     }
                   />
                 </div>
@@ -637,7 +630,7 @@ const StopPaymentUpload = () => {
                     <span>Processing...</span>
                   </span>
                 ) : (
-                  'Confirm and Fetch Provider Details'
+                  'Verify against CAS and Ehub'
                 )}
               </button>
             </div>
@@ -928,9 +921,8 @@ const StopPaymentUpload = () => {
                 <div className="bot-trigger-text">
                   <span className="bot-trigger-label">Automated Process Initiated</span>
                   <p className="bot-trigger-description">
-                    The bot has been triggered to process the reissue check and resend
-                    letter request. The workflow will continue automatically in the
-                    background.
+                    The bot has been triggered to process your request. 
+                    The workflow will continue automatically in the background.
                   </p>
                 </div>
               </div>
