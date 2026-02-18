@@ -3,7 +3,7 @@ import { useNavigate, useSearchParams } from 'react-router-dom'
 import './UploadReturnedCheck.css'
 import { mockReturnedChecksCashPosting, cashPostingExtractedDataMap, mockExtractedDataCashPostingCHK001 } from '../data/mockData'
 
-const CashPostingUpload = () => {
+const CashPosting2Upload = () => {
   const navigate = useNavigate()
   const [searchParams] = useSearchParams()
   const checkId = searchParams.get('checkId')
@@ -38,12 +38,12 @@ const CashPostingUpload = () => {
 
 
 
-  // Cash Posting Flow 1: Navigate to provider details (no address comparison)
+  // Cash Posting: Navigate to provider details (no address comparison)
   const handleVerifyAries = () => {
     setIsVerifying(true)
     setTimeout(() => {
       setIsVerifying(false)
-      navigate(`/cash-posting/provider-details?checkId=${selectedCheck.id}`)
+      navigate(`/cash-posting-2/provider-details?checkId=${selectedCheck.id}`)
     }, 2000)
   }
 
@@ -59,7 +59,7 @@ const CashPostingUpload = () => {
   return (
     <div className="upload-page">
       <div className="breadcrumbs">
-        <span>Cash Posting Flow 1</span>
+        <span>Cash Posting</span>
         <span className="separator">/</span>
         <span>Returned Check Document</span>
       </div>
@@ -218,7 +218,7 @@ const CashPostingUpload = () => {
                     <label className="radio-option">
                       <input
                         type="radio"
-                        name="solicitedType"
+                        name="solicitedType2"
                         value="solicited"
                         checked={solicitedType === 'solicited'}
                         onChange={(e) => setSolicitedType(e.target.value)}
@@ -228,7 +228,7 @@ const CashPostingUpload = () => {
                     <label className="radio-option">
                       <input
                         type="radio"
-                        name="solicitedType"
+                        name="solicitedType2"
                         value="unsolicited"
                         checked={solicitedType === 'unsolicited'}
                         onChange={(e) => setSolicitedType(e.target.value)}
@@ -262,5 +262,5 @@ const CashPostingUpload = () => {
   )
 }
 
-export default CashPostingUpload
+export default CashPosting2Upload
 

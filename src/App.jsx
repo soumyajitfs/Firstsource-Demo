@@ -14,6 +14,9 @@ import CashPosting from './pages/CashPosting'
 import CashPostingWork from './pages/CashPostingWork'
 import CashPostingUpload from './pages/CashPostingUpload'
 import CashPostingProviderDetails from './pages/CashPostingProviderDetails'
+import CashPosting2Work from './pages/CashPosting2Work'
+import CashPosting2Upload from './pages/CashPosting2Upload'
+import CashPosting2ProviderDetails from './pages/CashPosting2ProviderDetails'
 
 function App() {
   return (
@@ -31,7 +34,7 @@ function App() {
           <Route path="/stop-payment/work" element={<StopPaymentWork />} />
           <Route path="/stop-payment/upload" element={<StopPaymentUpload />} />
           
-          {/* Cash Posting flow (same as Stop Payment but without address comparison page) */}
+          {/* Cash Posting Flow 1 (same as Stop Payment but without address comparison page) */}
           <Route path="/cash-posting" element={<CashPosting />} />
           <Route path="/cash-posting/work" element={<CashPostingWork />} />
           <Route path="/cash-posting/upload" element={<CashPostingUpload />} />
@@ -40,6 +43,14 @@ function App() {
             element={<CashPostingProviderDetails />}
           />
           
+          {/* Cash Posting flow */}
+          <Route path="/cash-posting-2/work" element={<CashPosting2Work />} />
+          <Route path="/cash-posting-2/upload" element={<CashPosting2Upload />} />
+          <Route
+            path="/cash-posting-2/provider-details"
+            element={<CashPosting2ProviderDetails />}
+          />
+
           <Route path="/analysis" element={<CheckAnalysis />} />
           <Route path="/confirmation" element={<ConfirmationAudit />} />
         </Routes>

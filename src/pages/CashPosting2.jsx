@@ -2,17 +2,17 @@ import React from 'react'
 import { useNavigate } from 'react-router-dom'
 import './StopPayment.css'
 
-const CashPosting = () => {
+const CashPosting2 = () => {
   const navigate = useNavigate()
 
   const handleReadFromMailbox = () => {
-    navigate('/cash-posting/work')
+    navigate('/cash-posting-2/work')
   }
 
   return (
     <div className="stop-payment">
       <div className="breadcrumbs">
-        <span>Cash Posting Flow 1</span>
+        <span>Cash Posting</span>
         <span className="separator">/</span>
         <span>Returned Checks Resolution</span>
       </div>
@@ -35,5 +35,5 @@ const CashPosting = () => {
   )
 }
 
-export default CashPosting
+export default CashPosting2
 

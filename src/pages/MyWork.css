@@ -207,6 +207,8 @@
 .precheck-btn {
   background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
   color: white;
+  min-width: 110px;
+  text-align: center;
 }
 
 .precheck-btn:hover {

@@ -8,7 +8,7 @@ import {
   mockExtractedDataCashPostingCHK001
 } from '../data/mockData'
 
-const CashPostingProviderDetails = () => {
+const CashPosting2ProviderDetails = () => {
   const navigate = useNavigate()
   const [searchParams] = useSearchParams()
   const checkId = searchParams.get('checkId')
@@ -50,13 +50,13 @@ const CashPostingProviderDetails = () => {
   const closeReissueModal = () => {
     setShowReissueModal(false)
     // Navigate back to work page after closing modal
-    navigate('/cash-posting/work')
+    navigate('/cash-posting-2/work')
   }
 
   return (
     <div className="provider-details-page">
       <div className="breadcrumbs">
-        <span>Cash Posting Flow 1</span>
+        <span>Cash Posting</span>
         <span className="separator">/</span>
         <span>Provider Details</span>
       </div>
@@ -208,5 +208,5 @@ const CashPostingProviderDetails = () => {
   )
 }
 
-export default CashPostingProviderDetails
+export default CashPosting2ProviderDetails
 

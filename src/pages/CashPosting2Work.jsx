@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom'
 import './MyWork.css'
 import { mockReturnedChecksCashPosting } from '../data/mockData'
 
-const CashPostingWork = () => {
+const CashPosting2Work = () => {
   const navigate = useNavigate()
   const [filter, setFilter] = useState('all')
   const [checks] = useState(mockReturnedChecksCashPosting)
@@ -22,13 +22,13 @@ const CashPostingWork = () => {
   }
 
   const handlePrecheck = (checkId) => {
-    navigate(`/cash-posting/upload?checkId=${checkId}`)
+    navigate(`/cash-posting-2/upload?checkId=${checkId}`)
   }
 
   return (
     <div className="my-work">
       <div className="breadcrumbs">
-        <span>Cash Posting Flow 1</span>
+        <span>Cash Posting</span>
         <span className="separator">/</span>
         <span>Items From EFR</span>
       </div>
@@ -120,5 +120,5 @@ const CashPostingWork = () => {
   )
 }
 
-export default CashPostingWork
+export default CashPosting2Work
 
