@@ -30,11 +30,10 @@ const CashPosting2Work = () => {
       <div className="breadcrumbs">
         <span>Cash Posting</span>
         <span className="separator">/</span>
-        <span>Items From EFR</span>
+        <span>Cases</span>
       </div>
 
       <div className="page-header">
-        <h2>Items From EFR</h2>
         <div className="filter-tabs">
           <button
             className={filter === 'all' ? 'active' : ''}
@@ -59,11 +58,10 @@ const CashPosting2Work = () => {
 
       <div className="checks-inbox">
         <div className="inbox-header">
-          <h3>Items From EFR</h3>
+          <h3>Cases</h3>
           <p className="inbox-summary">
             {filteredChecks.length}{' '}
-            {filter === 'all' ? 'total' : filter} check
-            {filteredChecks.length !== 1 ? 's' : ''} available
+            {filter === 'all' ? 'total' : filter} Cases available
           </p>
         </div>
 

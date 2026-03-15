@@ -1,6 +1,7 @@
 import React, { useState } from 'react'
 import { Link, useLocation } from 'react-router-dom'
 import './Layout.css'
+import firstsourceLogo from '../../Firstsource-logo.png'
 
 const Layout = ({ children }) => {
   const location = useLocation()
@@ -30,7 +31,7 @@ const Layout = ({ children }) => {
       <header className="header">
         <div className="header-left">
           <div className="logo-container">
-            <span className="humana-logo">Humana</span>
+            <img src={firstsourceLogo} alt="Firstsource" className="firstsource-logo" />
             <span className="app-subtitle">Returned Check Resolution</span>
           </div>
         </div>

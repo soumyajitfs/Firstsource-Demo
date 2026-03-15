@@ -109,7 +109,7 @@ const CashPosting2ProviderDetails = () => {
           <div className="comparison-panel">
             <div className="comparison-panel-header aries-header">
               <span className="panel-icon">🖥️</span>
-              <h5>Details from CAS</h5>
+              <h5>Details from Claims Adjudication System</h5>
             </div>
             <div className="comparison-fields">
               {/* Recovery Amount first - with comparison styling */}
@@ -145,13 +145,13 @@ const CashPosting2ProviderDetails = () => {
             {checkAmountMatch && (
               <div style={{
                 padding: '16px 40px',
-                background: 'linear-gradient(135deg, #d4edda 0%, #c3e6cb 100%)',
+                background: 'linear-gradient(135deg, #e8f1ff 0%, #d2e7fc 100%)',
                 borderRadius: '12px',
-                color: '#155724',
+                color: '#13338E',
                 fontSize: '16px',
                 fontWeight: '600',
                 textAlign: 'center',
-                border: '1px solid #b1dfbb'
+                border: '1px solid #D0E6FB'
               }}>
                 ✅ EFR update completed
               </div>
@@ -163,7 +163,7 @@ const CashPosting2ProviderDetails = () => {
                 style={{
                   flex: '1',
                   maxWidth: '300px',
-                  background: 'linear-gradient(135deg, #3b82f6 0%, #2563eb 100%)'
+                  background: 'linear-gradient(135deg, #13338E 0%, #0F2A74 100%)'
                 }}
               >
                 Push to Manual Queue

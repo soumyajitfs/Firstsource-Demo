@@ -17,7 +17,6 @@ const CashPosting2Upload = () => {
   const [extractedData, setExtractedData] = useState(initialExtractedData)
   const [isExtracting, setIsExtracting] = useState(false)
   const [isVerifying, setIsVerifying] = useState(false)
-  const [solicitedType, setSolicitedType] = useState('solicited') // solicited or unsolicited
 
   useEffect(() => {
     const currentCheck = mockReturnedChecksCashPosting.find(check => check.id === checkId) || mockReturnedChecksCashPosting[0]
@@ -67,7 +66,7 @@ const CashPosting2Upload = () => {
       <div className="split-container">
         <div className="pdf-section">
           <div className="preview-header">
-              <h3>Document From Wells Fargo Lock Box</h3>
+              <h3>Document From Bank Lock Box</h3>
               <div className="preview-controls">
                 <button className="control-btn" disabled>
                   −
@@ -212,31 +211,6 @@ const CashPosting2Upload = () => {
                   />
                 </div>
 
-                <div className="form-field">
-                  <label>Type</label>
-                  <div className="radio-group">
-                    <label className="radio-option">
-                      <input
-                        type="radio"
-                        name="solicitedType2"
-                        value="solicited"
-                        checked={solicitedType === 'solicited'}
-                        onChange={(e) => setSolicitedType(e.target.value)}
-                      />
-                      <span className="radio-label">Solicited</span>
-                    </label>
-                    <label className="radio-option">
-                      <input
-                        type="radio"
-                        name="solicitedType2"
-                        value="unsolicited"
-                        checked={solicitedType === 'unsolicited'}
-                        onChange={(e) => setSolicitedType(e.target.value)}
-                      />
-                      <span className="radio-label">Unsolicited</span>
-                    </label>
-                  </div>
-                </div>
               </div>
 
               <button

@@ -563,3 +563,85 @@
   height: 100%;
   border: none;
 }
+
+/* -----------------------------------------------------
+   relAI Theme Overrides (global consistency)
+----------------------------------------------------- */
+.check-analysis .breadcrumbs {
+  color: var(--text-secondary);
+  font-weight: 600;
+}
+
+.check-analysis .breadcrumbs .separator {
+  color: var(--gray-300);
+}
+
+.current-complaint-card,
+.comparison-card,
+.pdf-modal {
+  background: #ffffff;
+  border: 1px solid var(--gray-border);
+  box-shadow: var(--shadow-md);
+}
+
+.card-header-orange {
+  border-bottom-color: var(--primary-orange);
+}
+
+.card-header-green {
+  border-bottom-color: var(--primary-dark);
+}
+
+.info-label,
+.form-field label {
+  color: var(--primary-dark);
+}
+
+.classification-item:hover,
+.validation-item:hover,
+.info-row:hover,
+.complaint-link:hover,
+.view-letter-link:hover {
+  background: rgba(102, 126, 234, 0.04);
+}
+
+.classification-item.selected {
+  background: linear-gradient(135deg, #e8f1ff 0%, #d2e7fc 100%);
+  border-color: var(--primary-dark);
+  box-shadow: 0 4px 12px rgba(19, 51, 142, 0.16);
+}
+
+.toggle-switch input:checked + .toggle-slider {
+  background: var(--gradient-orange);
+}
+
+.decision-select:focus,
+.reason-textarea:focus {
+  border-color: var(--accent-purple);
+  box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.12);
+}
+
+.send-results-btn {
+  background: var(--gradient-dark-blue);
+  box-shadow: 0 4px 14px rgba(27, 31, 75, 0.3);
+}
+
+.send-results-btn:hover {
+  background: linear-gradient(135deg, var(--primary-dark-hover) 0%, var(--primary-dark) 100%);
+  box-shadow: 0 6px 20px rgba(27, 31, 75, 0.35);
+}
+
+.report-fca-btn {
+  background: linear-gradient(135deg, var(--primary-orange) 0%, var(--primary-orange-dark) 100%);
+  box-shadow: 0 4px 16px rgba(223, 96, 20, 0.35);
+}
+
+.report-fca-btn:hover {
+  background: linear-gradient(135deg, var(--primary-orange-dark) 0%, #a53f0c 100%);
+  box-shadow: 0 6px 24px rgba(223, 96, 20, 0.4);
+}
+
+.pdf-modal-header {
+  background: var(--gradient-dark-blue);
+  box-shadow: 0 4px 16px rgba(27, 31, 75, 0.3);
+}

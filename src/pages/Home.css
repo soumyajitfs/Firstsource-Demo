@@ -7,14 +7,14 @@
 
 .breadcrumbs {
   font-size: 14px;
-  color: #64748b;
+  color: var(--text-secondary);
   margin-bottom: 25px;
-  font-weight: 500;
+  font-weight: 600;
 }
 
 .breadcrumbs .separator {
   margin: 0 10px;
-  color: #cbd5e0;
+  color: var(--gray-300);
 }
 
 .home-content {
@@ -26,15 +26,15 @@
 }
 
 .mailbox-card {
-  background: linear-gradient(135deg, #ffffff 0%, #f8fafc 100%);
-  border-radius: 16px;
-  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.1), 0 2px 8px rgba(0, 0, 0, 0.05);
+  background: #ffffff;
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-md);
   padding: 60px 70px;
   text-align: center;
-  border: 3px solid #28a745;
+  border: 1px solid var(--gray-border);
   max-width: 480px;
   width: 100%;
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  transition: all var(--transition-normal);
   position: relative;
   overflow: hidden;
 }
@@ -45,14 +45,14 @@
   top: 0;
   left: 0;
   right: 0;
-  height: 4px;
-  background: linear-gradient(90deg, #28a745 0%, #20c997 100%);
+  height: 3px;
+  background: linear-gradient(90deg, var(--primary-dark) 0%, var(--primary-orange) 100%);
 }
 
 .mailbox-card:hover {
   transform: translateY(-4px) scale(1.01);
-  box-shadow: 0 20px 60px rgba(40, 167, 69, 0.2), 0 4px 16px rgba(0, 0, 0, 0.1);
-  border-color: #20c997;
+  box-shadow: 0 12px 34px rgba(30, 34, 71, 0.15);
+  border-color: rgba(102, 126, 234, 0.25);
 }
 
 .mailbox-icon {
@@ -68,29 +68,29 @@
 }
 
 .read-mailbox-btn {
-  background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+  background: var(--gradient-dark-blue);
   color: white;
   border: none;
-  border-radius: 10px;
+  border-radius: var(--radius-sm);
   padding: 16px 40px;
-  font-size: 16px;
+  font-size: 14px;
   font-weight: 600;
   cursor: pointer;
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  transition: all var(--transition-fast);
   margin-bottom: 20px;
   width: 100%;
   display: flex;
   align-items: center;
   justify-content: center;
   gap: 12px;
-  box-shadow: 0 4px 12px rgba(40, 167, 69, 0.3);
+  box-shadow: 0 4px 14px rgba(27, 31, 75, 0.3);
   letter-spacing: 0.3px;
 }
 
 .read-mailbox-btn:hover {
-  background: linear-gradient(135deg, #218838 0%, #1ea87e 100%);
-  transform: translateY(-2px);
-  box-shadow: 0 6px 20px rgba(40, 167, 69, 0.4);
+  background: linear-gradient(135deg, #0f2a74 0%, #13338e 100%);
+  transform: translateY(-1px);
+  box-shadow: 0 6px 18px rgba(27, 31, 75, 0.35);
 }
 
 .read-mailbox-btn:active {
@@ -99,9 +99,9 @@
 }
 
 .mailbox-description {
-  font-size: 15px;
-  color: #64748b;
+  font-size: 14px;
+  color: var(--text-secondary);
   margin: 0;
-  line-height: 1.7;
+  line-height: 1.6;
   font-weight: 500;
 }

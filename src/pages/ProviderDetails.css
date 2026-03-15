@@ -4,17 +4,17 @@
 
 .page-subtitle {
   margin-top: 6px;
-  color: #64748b;
+  color: var(--text-secondary);
   font-size: 14px;
 }
 
 .provider-details-card {
   margin-top: 18px;
   background: #ffffff;
-  border: 1px solid #e2e8f0;
+  border: 1px solid var(--gray-border);
   border-radius: 14px;
   padding: 18px;
-  box-shadow: 0 8px 24px rgba(15, 23, 42, 0.06);
+  box-shadow: var(--shadow-md);
 }
 
 .provider-grid {
@@ -24,10 +24,10 @@
 }
 
 .provider-field {
-  border: 1px solid #e2e8f0;
+  border: 1px solid var(--gray-border);
   border-radius: 12px;
   padding: 12px 14px;
-  background: #f8fafc;
+  background: var(--gray-50);
 }
 
 .provider-field-wide {
@@ -38,14 +38,14 @@
   font-size: 12px;
   font-weight: 700;
   letter-spacing: 0.02em;
-  color: #475569;
+  color: var(--text-secondary);
   text-transform: uppercase;
   margin-bottom: 6px;
 }
 
 .provider-value {
   font-size: 14px;
-  color: #0f172a;
+  color: var(--text-dark);
   font-weight: 600;
   word-break: break-word;
 }
