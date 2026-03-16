@@ -32,7 +32,7 @@ const Layout = ({ children }) => {
         <div className="header-left">
           <div className="logo-container">
             <img src={firstsourceLogo} alt="Firstsource" className="firstsource-logo" />
-            <span className="app-subtitle">Returned Check Resolution</span>
+            <span className="app-subtitle">HPHS Solutions</span>
           </div>
         </div>
         <div className="header-center">

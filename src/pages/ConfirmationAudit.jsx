@@ -69,7 +69,7 @@ const ConfirmationAudit = () => {
 
       <div className="confirmation-modal">
         <div className="modal-header">
-          <h2>Returned Check Resolution</h2>
+          <h2>HPHS Solutions</h2>
           <button className="close-btn" onClick={handleClose}>×</button>
         </div>
         <div className="modal-content">

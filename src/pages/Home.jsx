@@ -14,7 +14,7 @@ const Home = () => {
       <div className="breadcrumbs">
         <span>My Work</span>
         <span className="separator">/</span>
-        <span>Returned Checks Resolution</span>
+        <span>HPHS Solutions</span>
       </div>
 
       <div className="home-content">

@@ -14,7 +14,7 @@ const CashPosting2 = () => {
       <div className="breadcrumbs">
         <span>Cash Posting</span>
         <span className="separator">/</span>
-        <span>Returned Checks Resolution</span>
+        <span>HPHS Solutions</span>
       </div>
 
       <div className="stop-payment-content">
