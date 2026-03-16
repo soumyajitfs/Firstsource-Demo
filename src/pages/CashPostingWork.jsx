@@ -21,8 +21,16 @@ const CashPostingWork = () => {
     return <span className={`status-badge ${config.class}`}>{config.label}</span>
   }
 
-  const handlePrecheck = (checkId) => {
-    navigate(`/cash-posting/upload?checkId=${checkId}`)
+  const getDisplayId = (checkId) => {
+    let hash = 0
+    for (let i = 0; i < checkId.length; i += 1) {
+      hash = (hash * 31 + checkId.charCodeAt(i)) % 900000
+    }
+    return 100000 + hash
+  }
+
+  const handlePrecheck = (checkId, displayId) => {
+    navigate(`/cash-posting/upload?checkId=${checkId}&displayId=${displayId}`)
   }
 
   return (
@@ -88,12 +96,11 @@ const CashPostingWork = () => {
                   return `${day}/${month}/${year}`
                 }
 
-                // Generate random ID for each check
-                const randomId = Math.floor(Math.random() * 900000) + 100000
+                const displayId = getDisplayId(check.id)
 
                 return (
                   <tr key={check.id}>
-                    <td>{randomId}</td>
+                    <td>{displayId}</td>
                     <td>{check.accountHolder}</td>
                     <td>{check.checkNumber}</td>
                     <td>${check.amount.toFixed(2)}</td>
@@ -102,7 +109,7 @@ const CashPostingWork = () => {
                     <td>
                       <button
                         className="action-btn precheck-btn"
-                        onClick={() => handlePrecheck(check.id)}
+                        onClick={() => handlePrecheck(check.id, displayId)}
                       >
                         {check.status === 'completed' ? 'View' : 'Process'}
                       </button>

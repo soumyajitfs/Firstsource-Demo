@@ -7,6 +7,7 @@ const CashPostingUpload = () => {
   const navigate = useNavigate()
   const [searchParams] = useSearchParams()
   const checkId = searchParams.get('checkId')
+  const displayId = searchParams.get('displayId')
   const mode = searchParams.get('mode')
 
   const selectedCheck = mockReturnedChecksCashPosting.find(check => check.id === checkId) || mockReturnedChecksCashPosting[0]
@@ -60,7 +61,7 @@ const CashPostingUpload = () => {
       <div className="breadcrumbs">
         <span>Cash Posting Flow 1</span>
         <span className="separator">/</span>
-        <span>Returned Check Document</span>
+        <span>{displayId || selectedCheck.id}</span>
       </div>
 
       <div className="split-container">
