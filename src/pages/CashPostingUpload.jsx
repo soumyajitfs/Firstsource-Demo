@@ -11,7 +11,7 @@ const CashPostingUpload = () => {
 
   const selectedCheck = mockReturnedChecksCashPosting.find(check => check.id === checkId) || mockReturnedChecksCashPosting[0]
   const basePdfUrl = selectedCheck.pdfUrl || '/Brandon Complete Dental Care.pdf'
-  const pdfUrl = `${basePdfUrl}#zoom=100`
+  const pdfUrl = `${encodeURI(basePdfUrl)}#zoom=100`
   const [step, setStep] = useState('extracted')
   const initialExtractedData = cashPostingExtractedDataMap[selectedCheck.id] || mockExtractedDataCashPostingCHK001
   const [extractedData, setExtractedData] = useState(initialExtractedData)
@@ -155,7 +155,7 @@ const CashPostingUpload = () => {
                   <label>Provider Name</label>
                   <input
                     type="text"
-                    value={extractedData.providerName || ''}
+                    value="XXXXXXXX"
                     readOnly
                     style={{ backgroundColor: '#f5f5f5', cursor: 'not-allowed' }}
                   />
@@ -165,7 +165,7 @@ const CashPostingUpload = () => {
                   <label>Payable To</label>
                   <input
                     type="text"
-                    value="Humana"
+                    value="XXXXXXXX"
                     readOnly
                     style={{ backgroundColor: '#f5f5f5', cursor: 'not-allowed' }}
                   />

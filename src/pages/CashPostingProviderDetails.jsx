@@ -100,7 +100,7 @@ const CashPostingProviderDetails = () => {
               </div>
               <div className="comparison-field">
                 <span className="field-label">Provider Name</span>
-                <span className="field-value">{extractedData.providerName}</span>
+                <span className="field-value">XXXXXXXX</span>
               </div>
             </div>
           </div>
