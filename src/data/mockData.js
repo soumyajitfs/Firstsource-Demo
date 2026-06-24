@@ -187,7 +187,7 @@ export const mockReturnedChecksCashPosting = [
     returnReason: 'Overpayment - Urgent Care Visit',
     receivedDate: '2024-03-28',
     status: 'completed',
-    pdfUrl: '/redacted_0045566509_humana_removed-compressed.pdf'
+    pdfUrl: '/redacted_0045566509_humana_removed-compressed (1).pdf'
   },
   {
     id: 'CHK003',
