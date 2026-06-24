@@ -1,0 +1,107 @@
+.home-page {
+  width: 100%;
+  min-height: calc(100vh - 200px);
+  display: flex;
+  flex-direction: column;
+}
+
+.breadcrumbs {
+  font-size: 14px;
+  color: var(--text-secondary);
+  margin-bottom: 25px;
+  font-weight: 600;
+}
+
+.breadcrumbs .separator {
+  margin: 0 10px;
+  color: var(--gray-300);
+}
+
+.home-content {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 50px 20px;
+}
+
+.mailbox-card {
+  background: #ffffff;
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-md);
+  padding: 60px 70px;
+  text-align: center;
+  border: 1px solid var(--gray-border);
+  max-width: 480px;
+  width: 100%;
+  transition: all var(--transition-normal);
+  position: relative;
+  overflow: hidden;
+}
+
+.mailbox-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 3px;
+  background: linear-gradient(90deg, var(--primary-dark) 0%, var(--primary-orange) 100%);
+}
+
+.mailbox-card:hover {
+  transform: translateY(-4px) scale(1.01);
+  box-shadow: 0 12px 34px rgba(30, 34, 71, 0.15);
+  border-color: rgba(102, 126, 234, 0.25);
+}
+
+.mailbox-icon {
+  font-size: 72px;
+  margin-bottom: 30px;
+  filter: drop-shadow(0 4px 8px rgba(0, 0, 0, 0.1));
+  animation: float 3s ease-in-out infinite;
+}
+
+@keyframes float {
+  0%, 100% { transform: translateY(0px); }
+  50% { transform: translateY(-10px); }
+}
+
+.read-mailbox-btn {
+  background: var(--gradient-dark-blue);
+  color: white;
+  border: none;
+  border-radius: var(--radius-sm);
+  padding: 16px 40px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all var(--transition-fast);
+  margin-bottom: 20px;
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  box-shadow: 0 4px 14px rgba(27, 31, 75, 0.3);
+  letter-spacing: 0.3px;
+}
+
+.read-mailbox-btn:hover {
+  background: linear-gradient(135deg, #0f2a74 0%, #13338e 100%);
+  transform: translateY(-1px);
+  box-shadow: 0 6px 18px rgba(27, 31, 75, 0.35);
+}
+
+.read-mailbox-btn:active {
+  transform: translateY(0);
+  box-shadow: 0 2px 8px rgba(40, 167, 69, 0.3);
+}
+
+.mailbox-description {
+  font-size: 14px;
+  color: var(--text-secondary);
+  margin: 0;
+  line-height: 1.6;
+  font-weight: 500;
+}
