@@ -198,7 +198,7 @@ export const mockReturnedChecksCashPosting = [
     returnReason: 'Overpayment - Ambulance Transport',
     receivedDate: '2024-03-22',
     status: 'new',
-    pdfUrl: '/Emergency Ambulance Service Inc.pdf'
+    pdfUrl: '/redacted_0000024212 $489.48.pdf'
   },
   {
     id: 'CHK004',
