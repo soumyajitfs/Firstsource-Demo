@@ -187,7 +187,7 @@ export const mockReturnedChecksCashPosting = [
     returnReason: 'Overpayment - Urgent Care Visit',
     receivedDate: '2024-03-28',
     status: 'completed',
-    pdfUrl: '/Carenow Greenwood Village.pdf'
+    pdfUrl: '/redacted_0045566509_humana_removed-compressed.pdf'
   },
   {
     id: 'CHK003',
@@ -198,7 +198,7 @@ export const mockReturnedChecksCashPosting = [
     returnReason: 'Overpayment - Ambulance Transport',
     receivedDate: '2024-03-22',
     status: 'new',
-    pdfUrl: '/redacted_0000024212 $489.48.pdf'
+    pdfUrl: '/redacted_0045566509%20$3.24-compressed.pdf'
   },
   {
     id: 'CHK004',
